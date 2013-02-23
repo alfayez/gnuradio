@@ -46,6 +46,7 @@ class my_top_block(gr.top_block):
         filename = args[0]
 
         sample_rate = int(options.sample_rate)
+        print "audio_input= ", options.audio_input
         src = audio.source (sample_rate, options.audio_input)
         dst = gr.file_sink (gr.sizeof_float, filename)
 

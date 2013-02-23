@@ -45,6 +45,7 @@ class my_top_block(gr.top_block):
 
         src0 = gr.sig_source_f (sample_rate, gr.GR_SIN_WAVE, 350, ampl)
         src1 = gr.sig_source_f (sample_rate, gr.GR_SIN_WAVE, 440, ampl)
+        print "audio_dev= ", options.audio_output
         dst = audio.sink (sample_rate, options.audio_output)
         self.connect (src0, (dst, 0))
         self.connect (src1, (dst, 1))
