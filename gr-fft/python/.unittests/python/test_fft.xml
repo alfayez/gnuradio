@@ -1,0 +1,7 @@
+<testsuite errors="0" failures="0" name="unittest.suite.TestSuite" tests="3" time="0.012">
+  <testcase classname="__main__.test_fft" name="test_001" time="0.0050"></testcase>
+  <testcase classname="__main__.test_fft" name="test_002" time="0.0035"></testcase>
+  <testcase classname="__main__.test_fft" name="test_003" time="0.0037"></testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

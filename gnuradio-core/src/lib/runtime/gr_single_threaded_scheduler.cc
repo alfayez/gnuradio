@@ -36,7 +36,7 @@
 #include <stdio.h>
 
 // must be defined to either 0 or 1
-#define ENABLE_LOGGING 0
+#define ENABLE_LOGGING 1
 
 #if (ENABLE_LOGGING)
 #define LOG(x) do { x; } while(0)
@@ -153,6 +153,8 @@ gr_single_threaded_scheduler::main_loop ()
   // Loop while there are still blocks alive
 
   nalive = d_blocks.size ();
+  std::cout << "Single Thread Scheduler\n";
+  std::cout << "number of blocks= " << nalive << std::endl;
   while (d_enabled && nalive > 0){
 
     if (boost::this_thread::interruption_requested())
@@ -161,7 +163,13 @@ gr_single_threaded_scheduler::main_loop ()
     gr_block		*m = d_blocks[bi].get ();
     gr_block_detail	*d = m->detail().get ();
 
+    //std::cout << "Block Name= " << m->name() << std::endl;
+    //std::cout << "Block Name+id= " << m << std::endl;
+    LOG( *d_log << m << " in= " << d->ninputs() << " out= " << d->noutputs() << std::endl);
     LOG(*d_log << std::endl << m);
+    LOG(*d_log << "  noutput_items = " << noutput_items << std::endl);
+    LOG(*d_log << "  rel rate      = " << m->relative_rate() << std::endl);
+
 
     if (d->done ())
       goto next_block;
@@ -215,7 +223,7 @@ gr_single_threaded_scheduler::main_loop ()
       noutput_items = round_down (noutput_items, m->output_multiple ());
       LOG(*d_log << "  max_items_avail = " << max_items_avail << std::endl);
       LOG(*d_log << "  noutput_items = " << noutput_items << std::endl);
-
+      LOG(*d_log << "  rel rate      = " << m->relative_rate() << std::endl);
       if (noutput_items == 0){	// we're blocked on input
 	LOG(*d_log << "  BLKD_IN\n");
 	goto next_block;
@@ -235,6 +243,7 @@ gr_single_threaded_scheduler::main_loop ()
       for (int i = 0; i < d->ninputs (); i++){
 	ninput_items[i] = d->input(i)->items_available ();
 	max_items_avail = std::max (max_items_avail, ninput_items[i]);
+	LOG(*d_log << " nin[" << i << "]= " << ninput_items[i]);
       }
 
       // determine the minimum available output space
@@ -247,6 +256,9 @@ gr_single_threaded_scheduler::main_loop ()
 	  *d_log << 1.0/m->relative_rate() << ":1\n";
 	*d_log << "  max_items_avail = " << max_items_avail << std::endl;
 	*d_log << "  noutput_items = " << noutput_items << std::endl;
+	*d_log << "  output_mult = " << m->output_multiple() << std::endl;
+        *d_log << "  rel rate      = " << m->relative_rate() << std::endl;
+
       }
       if (noutput_items == -1)		// we're done
 	goto were_done;

@@ -54,7 +54,6 @@ static gr_scheduler_sptr
 make_scheduler(gr_flat_flowgraph_sptr ffg, int max_noutput_items)
 {
   static scheduler_maker  factory = 0;
-
   if (factory == 0){
     char *v = getenv("GR_SCHEDULER");
     if (!v)

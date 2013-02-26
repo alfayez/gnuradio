@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 from gnuradio import gr, filter
 from gnuradio import eng_notation
 from gnuradio.eng_option import eng_option

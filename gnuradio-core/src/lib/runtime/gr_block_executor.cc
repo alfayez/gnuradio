@@ -37,7 +37,7 @@
 #include <stdio.h>
 
 // must be defined to either 0 or 1
-#define ENABLE_LOGGING 0
+#define ENABLE_LOGGING 1
 
 #if (ENABLE_LOGGING)
 #define LOG(x) do { x; } while(0)
@@ -195,7 +195,6 @@ gr_block_executor::run_one_iteration()
   gr_block_detail	*d = m->detail().get();
 
   LOG(*d_log << std::endl << m);
-
   if (d->done()){
     assert(0);
     return DONE;
@@ -232,7 +231,6 @@ gr_block_executor::run_one_iteration()
     d_output_items.resize (0);
     d_start_nitems_read.resize(d->ninputs());
     LOG(*d_log << " sink\n");
-
     max_items_avail = 0;
     for (int i = 0; i < d->ninputs (); i++){
       {

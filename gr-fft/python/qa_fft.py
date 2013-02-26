@@ -20,7 +20,7 @@
 #
 
 from gnuradio import gr, gr_unittest
-import fft_swig as fft
+from gnuradio.fft import fft_swig as fft
 import sys
 import random
 
