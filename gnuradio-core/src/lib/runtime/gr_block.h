@@ -313,6 +313,7 @@ class GR_CORE_API gr_block : public gr_basic_block {
    * required to add a new value for new ports on these blocks.
    */
   void expand_minmax_buffer(int port) {
+    
     if((size_t)port >= d_max_output_buffer.size())
       set_max_output_buffer(port, -1);
     if((size_t)port >= d_min_output_buffer.size())

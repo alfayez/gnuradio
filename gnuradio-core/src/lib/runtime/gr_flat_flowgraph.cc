@@ -33,12 +33,14 @@
 #include <map>
 #include <boost/format.hpp>
 
-#define GR_FLAT_FLOWGRAPH_DEBUG  0
+using namespace boost::assign;
+
+#define GR_FLAT_FLOWGRAPH_DEBUG  1
 
 // 32Kbyte buffer size between blocks
 #define GR_FIXED_BUFFER_SIZE (32*(1L<<10))
 
-static const unsigned int s_fixed_buffer_size = GR_FIXED_BUFFER_SIZE;
+static unsigned int s_fixed_buffer_size = GR_FIXED_BUFFER_SIZE;
 
 gr_flat_flowgraph_sptr
 gr_make_flat_flowgraph()
@@ -68,6 +70,8 @@ gr_flat_flowgraph::setup_connections()
     connect_block_inputs(*p);
 
     gr_block_sptr block = cast_to_block_sptr(*p);
+    std::cout << "2Relative Rate " << block->relative_rate() << std::endl;
+    std::cout << "2Fixed Rate    " << block->fixed_rate() << std::endl;
     block->set_unaligned(0);
     block->set_is_unaligned(false);
   }
@@ -80,8 +84,46 @@ gr_flat_flowgraph::setup_connections()
                     i->dst().block() % i->dst().port();
     i->src().block()->message_port_sub( i->src().port(), pmt::pmt_cons(i->dst().block()->alias_pmt(), i->dst().port()) );
     }
+  //////////////////////////////////////////////////////
+  /// GET LIST OF BLOCKS USED IN TOPOLOGICAL ORDER  ////
+  //////////////////////////////////////////////////////
+  //gr_basic_block_vector_t used_blocks = this->calc_used_blocks();
+  //used_blocks = this->topological_sort(used_blocks);
+  //gr_block_vector_t blocks_temp = gr_flat_flowgraph::make_block_vector(used_blocks);
+  // Ensure that the done flag is clear on all blocks
+  //for (size_t i = 0; i < blocks_temp.size(); i++){
+  //  std::cout << "HEY BLOCK= " << cast_to_block_sptr(blocks_temp[i]) << std::endl;
+  //}
+}
+////////////////////////
+// Fayez
+void 
+gr_flat_flowgraph::set_blocks_list() {
+  std::string block;
+  //////////////////////////////////////////////////////
+  /// GET LIST OF BLOCKS USED IN TOPOLOGICAL ORDER  ////
+  //////////////////////////////////////////////////////
+  gr_basic_block_vector_t used_blocks = this->calc_used_blocks();
+  used_blocks = this->topological_sort(used_blocks);
+  this->blocks_list = gr_flat_flowgraph::make_block_vector(used_blocks);
+}
+void 
+gr_flat_flowgraph::return_blocks_list() {
+ for (size_t i = 0; i < this->blocks_list.size(); i++){
+    std::cout << "HEY BLOCK= " << blocks_list[i]->name() << std::endl;
+  }
+}
+void 
+gr_flat_flowgraph::set_top_matrix() {
+  //////////////////////////////////////////////////////
+  /// SET THE CONTENTS OF THE TOPOLOGY MATRIX       ////
+  //////////////////////////////////////////////////////
+}
+void 
+gr_flat_flowgraph::return_top_matrix() {
 
 }
+
 
 gr_block_detail_sptr
 gr_flat_flowgraph::allocate_block_detail(gr_basic_block_sptr block)
@@ -94,8 +136,11 @@ gr_flat_flowgraph::allocate_block_detail(gr_basic_block_sptr block)
   if(!grblock)
     throw std::runtime_error("allocate_block_detail found non-gr_block");
 
-  if (GR_FLAT_FLOWGRAPH_DEBUG)
+  if (GR_FLAT_FLOWGRAPH_DEBUG) {
     std::cout << "Creating block detail for " << block << std::endl;
+    std::cout << "Relative Rate " << grblock->relative_rate() << std::endl;
+    std::cout << "Fixed Rate    " << grblock->fixed_rate() << std::endl;
+  }
 
   for (int i = 0; i < noutputs; i++) {
     grblock->expand_minmax_buffer(i);
@@ -119,35 +164,48 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
   if (!grblock)
     throw std::runtime_error("allocate_buffer found non-gr_block");
   int item_size = block->output_signature()->sizeof_stream_item(port);
-
+  std::cout << "BLOCK= " << grblock << std::endl;
+  std::cout << "item_size= " << item_size << std::endl;
+  std::cout << "unique_id = " << grblock->unique_id() << " symbolic_id=  " << grblock->symbolic_id() << " name= " << grblock->name() << " symbol_name= " << grblock->symbol_name() << " alias= " <<  grblock->alias() << std::endl;
   // *2 because we're now only filling them 1/2 way in order to
   // increase the available parallelism when using the TPB scheduler.
   // (We're double buffering, where we used to single buffer)
   int nitems = s_fixed_buffer_size * 2 / item_size;
-
+  std::cout << "s_fixed_buffer_size= " << s_fixed_buffer_size << std::endl;
+  std::cout << "nitem1= " << nitems << " item_size= " << item_size << std::endl;
   // Make sure there are at least twice the output_multiple no. of items
   if (nitems < 2*grblock->output_multiple())	// Note: this means output_multiple()
     nitems = 2*grblock->output_multiple();	// can't be changed by block dynamically
-
+  std::cout << "nitem2= " << nitems << " output_relrate= " << grblock->relative_rate() << " max_noutput= " << grblock->max_noutput_items() << std::endl;
   // If any downstream blocks are decimators and/or have a large output_multiple,
   // ensure we have a buffer at least twice their decimation factor*output_multiple
   gr_basic_block_vector_t blocks = calc_downstream_blocks(block, port);
 
   // limit buffer size if indicated
   if(grblock->max_output_buffer(port) > 0) {
-//    std::cout << "constraining output items to " << block->max_output_buffer(port) << "\n";
+    //    std::cout << "constraining output items to " << block->max_output_buffer(port) << "\n";
     nitems = std::min((long)nitems, (long)grblock->max_output_buffer(port));
+    std::cout << "restric max nitem1= " << nitems << std::endl;
     nitems -= nitems%grblock->output_multiple();
+    std::cout << "restric max nitem2= " << nitems << std::endl;
     if( nitems < 1 )
       throw std::runtime_error("problems allocating a buffer with the given max output buffer constraint!");
   }
   else if(grblock->min_output_buffer(port) > 0) {
     nitems = std::max((long)nitems, (long)grblock->min_output_buffer(port));
+    std::cout << "restrict min nitem1= " << nitems << std::endl;
     nitems -= nitems%grblock->output_multiple();
+    std::cout << "restric nitem2= " << nitems << std::endl;
     if( nitems < 1 )
       throw std::runtime_error("problems allocating a buffer with the given min output buffer constraint!");
   }
+  /* TODO: unnecessary if we have topology matrix since we already the
+  decimation and interpolation rates for each channel
 
+  Not really, the topology matrix contains the relative rates for the
+  hierarchical components but not the hierarchical composition of an actor
+  */
+  
   for (gr_basic_block_viter_t p = blocks.begin(); p != blocks.end(); p++) {
     gr_block_sptr dgrblock = cast_to_block_sptr(*p);
     if (!dgrblock)
@@ -156,7 +214,10 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
     double decimation = (1.0/dgrblock->relative_rate());
     int multiple      = dgrblock->output_multiple();
     int history       = dgrblock->history();
+    //std::cout << "dgrblock= " << dgrblock << " decimation " <<
+    //decimation << " multiple=" << multiple << " history= " << history << " max_noutput= " << dgrblock->detail()->output(0)->d_bufsize << std::endl;
     nitems = std::max(nitems, static_cast<int>(2*(decimation*multiple+history)));
+    std::cout << "final nitem= " << nitems << std::endl;
   }
 
 //  std::cout << "gr_make_buffer(" << nitems << ", " << item_size << ", " << grblock << "\n";
@@ -181,13 +242,18 @@ gr_flat_flowgraph::connect_block_inputs(gr_basic_block_sptr block)
     int dst_port = e->dst().port();
     int src_port = e->src().port();
     gr_basic_block_sptr src_block = e->src().block();
+    gr_basic_block_sptr dst_block = e->dst().block();
     gr_block_sptr src_grblock = cast_to_block_sptr(src_block);
+    gr_block_sptr dst_grblock = cast_to_block_sptr(dst_block);
+    
     if (!src_grblock)
       throw std::runtime_error("connect_block_inputs found non-gr_block");
     gr_buffer_sptr src_buffer = src_grblock->detail()->output(src_port);
 
-    if (GR_FLAT_FLOWGRAPH_DEBUG)
+    if (GR_FLAT_FLOWGRAPH_DEBUG) {
       std::cout << "Setting input " << dst_port << " from edge " << (*e) << std::endl;
+      std::cout << "Src Block= " << src_grblock << " Dst Block= " << dst_grblock << std::endl;
+    }
 
     detail->set_input(dst_port, gr_buffer_add_reader(src_buffer, grblock->history()-1, grblock));
   }

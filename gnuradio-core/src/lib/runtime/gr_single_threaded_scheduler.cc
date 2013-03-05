@@ -189,7 +189,7 @@ gr_single_threaded_scheduler::main_loop ()
 
       // determine the minimum available output space
       noutput_items = min_available_space (d, m->output_multiple ());
-      LOG(*d_log << " source\n  noutput_items = " << noutput_items << std::endl);
+      LOG(*d_log << " source\n  noutput_items = " << noutput_items << "output_mult= " << m->output_multiple () << std::endl);
       if (noutput_items == -1)		// we're done
 	goto were_done;
 
@@ -222,7 +222,7 @@ gr_single_threaded_scheduler::main_loop ()
       noutput_items = (int) (max_items_avail * m->relative_rate ());
       noutput_items = round_down (noutput_items, m->output_multiple ());
       LOG(*d_log << "  max_items_avail = " << max_items_avail << std::endl);
-      LOG(*d_log << "  noutput_items = " << noutput_items << std::endl);
+      LOG(*d_log << "  noutput_items = " << noutput_items << "output_mult= " << m->output_multiple ()<< std::endl);
       LOG(*d_log << "  rel rate      = " << m->relative_rate() << std::endl);
       if (noutput_items == 0){	// we're blocked on input
 	LOG(*d_log << "  BLKD_IN\n");
@@ -255,7 +255,7 @@ gr_single_threaded_scheduler::main_loop ()
 	else
 	  *d_log << 1.0/m->relative_rate() << ":1\n";
 	*d_log << "  max_items_avail = " << max_items_avail << std::endl;
-	*d_log << "  noutput_items = " << noutput_items << std::endl;
+	*d_log << "  noutput_items = " << noutput_items << "output_mult= " << m->output_multiple () << std::endl;
 	*d_log << "  output_mult = " << m->output_multiple() << std::endl;
         *d_log << "  rel rate      = " << m->relative_rate() << std::endl;
 

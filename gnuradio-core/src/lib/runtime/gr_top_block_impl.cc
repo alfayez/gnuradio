@@ -106,6 +106,9 @@ gr_top_block_impl::start(int max_noutput_items)
   // Validate new simple flow graph and wire it up
   d_ffg->validate();
   d_ffg->setup_connections();
+  d_ffg->set_blocks_list();
+  d_ffg->return_blocks_list();
+  d_ffg->set_top_matrix();
 
   d_scheduler = make_scheduler(d_ffg, d_max_noutput_items);
   d_state = RUNNING;

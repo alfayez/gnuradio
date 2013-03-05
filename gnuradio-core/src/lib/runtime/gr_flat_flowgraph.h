@@ -26,7 +26,10 @@
 #include <gr_core_api.h>
 #include <gr_flowgraph.h>
 #include <gr_block.h>
-
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
+#include <boost/assign/std/vector.hpp>
+#include <string>
 // Create a shared pointer to a heap allocated gr_flat_flowgraph
 // (types defined in gr_runtime_types.h)
 GR_CORE_API gr_flat_flowgraph_sptr gr_make_flat_flowgraph();
@@ -60,6 +63,10 @@ public:
   void replace_endpoint(const gr_msg_endpoint &e, const gr_msg_endpoint &r, bool is_src);
   void clear_endpoint(const gr_msg_endpoint &e, bool is_src);
 
+  void set_blocks_list();
+  void return_blocks_list();
+  void set_top_matrix();
+  void return_top_matrix();
 private:
   gr_flat_flowgraph();
 
@@ -75,6 +82,10 @@ private:
    * start and restarts.
    */
   void setup_buffer_alignment(gr_block_sptr block);
+
+  // Fayez
+  gr_block_vector_t blocks_list;
+  boost::numeric::ublas::matrix<double> top_matrix;
 };
 
 #endif /* INCLUDED_GR_FLAT_FLOWGRAPH_H */
