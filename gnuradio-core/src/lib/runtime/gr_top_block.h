@@ -25,7 +25,10 @@
 
 #include <gr_core_api.h>
 #include <gr_hier_block2.h>
-
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
+#include <boost/assign/std/vector.hpp>
+#include <string>
 class gr_top_block_impl;
 
 GR_CORE_API gr_top_block_sptr gr_make_top_block(const std::string &name);
@@ -123,6 +126,14 @@ public:
   void set_max_noutput_items(int nmax);
 
   gr_top_block_sptr to_top_block(); // Needed for Python type coercion
+  // Get the list of processes
+  std::string blocks_list_top(int index);
+
+  // Get the topology matrix
+  double top_matrix_top(int index1, int index2);
+  int top_get_number_of_blocks();
+  int top_get_number_of_edges();
+
 };
 
 inline gr_top_block_sptr cast_to_top_block_sptr(gr_basic_block_sptr block) {

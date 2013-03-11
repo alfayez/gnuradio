@@ -109,7 +109,7 @@ gr_top_block_impl::start(int max_noutput_items)
   // Al
   d_ffg->set_blocks_list();
   d_ffg->set_top_matrix();
-  d_ffg->return_blocks_list();
+  //d_ffg->return_blocks_list();
 
   d_ffg->setup_connections();
   d_ffg->set_top_matrix();
@@ -117,6 +117,23 @@ gr_top_block_impl::start(int max_noutput_items)
 
   d_scheduler = make_scheduler(d_ffg, d_max_noutput_items);
   d_state = RUNNING;
+}
+// Get the list of processes
+std::string
+gr_top_block_impl::blocks_list_top(int index) {
+  return d_ffg->return_blocks_list(index);
+}
+
+// Get the topology matrix
+double
+gr_top_block_impl::top_matrix_top(int index1, int index2) {
+  return d_ffg->return_top_matrix(index1, index2);
+}
+int gr_top_block_impl::get_number_of_blocks() {
+  return d_ffg->return_number_of_blocks();
+}
+int gr_top_block_impl::get_number_of_edges() {
+  return d_ffg->return_number_of_edges();
 }
 
 void

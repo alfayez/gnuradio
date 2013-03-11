@@ -70,6 +70,24 @@ gr_top_block::wait()
 {
   d_impl->wait();
 }
+// Get the list of processes
+std::string
+gr_top_block::blocks_list_top(int index) {
+  //std::cout << "TOP_blocks_list= " << std::endl << d_impl->blocks_list_top() << std::endl
+  return d_impl->blocks_list_top(index);
+}
+// Get the topology matrix
+double
+gr_top_block::top_matrix_top(int index1, int index2) {
+  //std::cout << "TOP_matrix= " << std::endl << d_impl->top_matrix_top() << std::endl;
+  return d_impl->top_matrix_top(index1, index2);
+}
+int gr_top_block::top_get_number_of_blocks() {
+  return d_impl->get_number_of_blocks();
+}
+int gr_top_block::top_get_number_of_edges() {
+  return d_impl->get_number_of_edges();
+}
 
 void
 gr_top_block::run(int max_noutput_items)

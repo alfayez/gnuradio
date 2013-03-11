@@ -40,6 +40,9 @@
 #include <gr_sync_decimator.h>
 #include <gr_sync_interpolator.h>
 #include <gr_top_block.h>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
+#include <boost/assign/std/vector.hpp>
 %}
 
 %constant int sizeof_char 	= sizeof(char);

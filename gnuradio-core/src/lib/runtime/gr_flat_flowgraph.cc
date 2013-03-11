@@ -188,19 +188,18 @@ gr_flat_flowgraph::set_blocks_list() {
   }
 
 }
+int gr_flat_flowgraph::return_number_of_blocks() {
+  return this->number_of_blocks;
+}
+int gr_flat_flowgraph::return_number_of_edges() {
+  return this->number_of_edges;
+}
 int gr_flat_flowgraph::return_block_id(std::string block_find) {
   for (size_t i = 0; i < this->blocks_list.size(); i++){
     if (block_find == this->blocks_list[i])
       return i;
   }
   return -1;
-}
-
-void 
-gr_flat_flowgraph::return_blocks_list() {
-  //for (size_t i = 0; i < this->blocks_list.size(); i++){
-  //  std::cout << "HEY BLOCK= " << blocks_list[i]->name() << std::endl;
-  // }
 }
 void 
 gr_flat_flowgraph::set_top_matrix() {
@@ -212,9 +211,14 @@ gr_flat_flowgraph::set_top_matrix() {
   std::cout << "Matrix dimension= " << this->top_matrix.size1() << "x" << this->top_matrix.size2() << std::endl;
   std::cout << "Matrix= " << std::endl << this->top_matrix << std::endl;
 }
-void 
-gr_flat_flowgraph::return_top_matrix() {
-
+//std::vector<std::string>
+std::string gr_flat_flowgraph::return_blocks_list(int index) {
+  return blocks_list[index];
+}
+//boost::numeric::ublas::matrix<double>
+double
+gr_flat_flowgraph::return_top_matrix(int index1, int index2) {
+  return top_matrix(index1, index2);
 }
 
 

@@ -26,7 +26,9 @@
 #include <gr_core_api.h>
 #include <gr_scheduler.h>
 #include <gruel/thread.h>
-
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
+#include <boost/assign/std/vector.hpp>
 /*!
  *\brief Abstract implementation details of gr_top_block
  * \ingroup internal
@@ -65,6 +67,14 @@ public:
   // Set the maximum number of noutput_items in the flowgraph
   void set_max_noutput_items(int nmax);
 
+  // Get the list of processes
+  //std::vector<std::string> blocks_list_top();
+  std::string blocks_list_top(int index);
+  // Get the topology matrix
+  //boost::numeric::ublas::matrix<double> top_matrix_top();
+  double top_matrix_top(int index1, int index2);
+  int get_number_of_blocks();
+  int get_number_of_edges();
 protected:
 
   enum tb_state { IDLE, RUNNING };

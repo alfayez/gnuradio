@@ -50,6 +50,13 @@ public:
   void set_max_noutput_items(int nmax);
 
   gr_top_block_sptr to_top_block(); // Needed for Python type coercion
+
+  // Get the list of processes
+  std::string blocks_list_top(int index);
+  // Get the topology matrix
+  double top_matrix_top(int index1, int index2);
+  int top_get_number_of_edges();
+  int top_get_number_of_blocks();
 };
 
 #ifdef SWIGPYTHON
