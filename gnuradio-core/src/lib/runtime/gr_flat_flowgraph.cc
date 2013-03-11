@@ -50,6 +50,8 @@ gr_make_flat_flowgraph()
 
 gr_flat_flowgraph::gr_flat_flowgraph()
 {
+  number_of_blocks = 0;
+  number_of_edges  = 0;
 }
 
 gr_flat_flowgraph::~gr_flat_flowgraph()
@@ -100,24 +102,115 @@ gr_flat_flowgraph::setup_connections()
 void 
 gr_flat_flowgraph::set_blocks_list() {
   std::string block;
+  gr_edge_vector_t in_edges;
+  int dst_port;
+  int src_port;
+  gr_basic_block_sptr src_block;
+  gr_basic_block_sptr dst_block;
+  gr_block_sptr src_grblock;
+  gr_block_sptr dst_grblock;
+
+  int src_id=-1;
+  int dst_id=-1;
+  int cur_rate_src = 1;
+  int cur_rate_dst = 1;
+  int block_rate_src = 1;
+  int block_rate_dst = 1;
+
+  int it1=0;
+  int it2=0;
+
+  gr_block_vector_t blocks_temp;
   //////////////////////////////////////////////////////
   /// GET LIST OF BLOCKS USED IN TOPOLOGICAL ORDER  ////
   //////////////////////////////////////////////////////
   gr_basic_block_vector_t used_blocks = this->calc_used_blocks();
   used_blocks = this->topological_sort(used_blocks);
-  this->blocks_list = gr_flat_flowgraph::make_block_vector(used_blocks);
+  //this->blocks_list = gr_flat_flowgraph::make_block_vector(used_blocks);
+  blocks_temp = gr_flat_flowgraph::make_block_vector(used_blocks);
+
+  std::cout << "Before filling boost vector" << std::endl;
+  // set vector size to the number of blocks
+  this->blocks_list.resize(blocks_temp.size());
+  for (size_t i = 0; i < blocks_temp.size(); i++){
+    //this->blocks_list[i] = blocks_temp[i]->symbol_name();
+    //this->blocks_list.resize(i);
+    this->blocks_list[i] = blocks_temp[i]->symbol_name();
+    in_edges = calc_upstream_edges(blocks_temp[i]);
+    for (gr_edge_viter_t e = in_edges.begin(); e != in_edges.end(); e++) {
+      this->number_of_edges = this->number_of_edges + 1;
+    }
+  }
+  this->number_of_blocks = this->blocks_list.size();
+  this->top_matrix.resize(this->number_of_edges, this->number_of_blocks);
+  // Initiailize the newly created Matrix row to 0's
+  for (int j=0; j < this->number_of_edges; j++)
+    for (int k=0; k < this->number_of_blocks; k++)
+      this->top_matrix(j,k) = 0;
+  std::cout << "Empty Matrix= ";
+  std::cout << this->top_matrix << std::endl;
+  it1=0;
+  for (size_t i = 0; i < blocks_temp.size(); i++){
+    std::cout << "HEY BLOCK= " << blocks_temp[i]->name() << " Rel Rate= " << blocks_temp[i]->relative_rate() << std::endl;    
+    in_edges = calc_upstream_edges(blocks_temp[i]);
+    for (gr_edge_viter_t e = in_edges.begin(); e != in_edges.end(); e++) {
+      // Set the buffer reader on the destination port to the output
+      // buffer on the source port
+      dst_port = e->dst().port();
+      src_port = e->src().port();
+      src_block = e->src().block();
+      dst_block = e->dst().block();
+      src_grblock = cast_to_block_sptr(src_block);
+      dst_grblock = cast_to_block_sptr(dst_block);
+      src_id = this->return_block_id(src_block->symbol_name());
+      dst_id = this->return_block_id(dst_block->symbol_name());
+      //std::cout << "src block= " << src_block->name() << " id= " << src_id << " rate= " << src_grblock->relative_rate() << std::endl;
+      //std:: cout << "dst block= " << dst_block->name() << " dst id= " << dst_id << " rate= " << src_grblock->relative_rate() << std::endl;
+      std::cout << "number of edges= " << this->number_of_edges << " number of blocks= " << this->number_of_blocks << std::endl;
+
+
+      block_rate_src = src_grblock->relative_rate();
+      block_rate_dst = dst_grblock->relative_rate();
+      //if (block_rate_src != 0)
+      //cur_rate_src = block_rate_src;
+      //if (block_rate_dst != 0)
+      //cur_rate_dst = block_rate_dst;
+      std::cout << "M[" << it1 << "," << src_id << "]= " << block_rate_src << std::endl;
+      std::cout << "M[" << it1 << "," << dst_id << "]= " << block_rate_dst << std::endl;
+      this->top_matrix(it1,src_id) = block_rate_src;
+      this->top_matrix(it1,dst_id) = -block_rate_dst;
+      //this->top_matrix(this->number_of_edges,src_id) = i;
+      //this->top_matrix(this->number_of_edges,dst_id) = i+1;
+      std::cout << "Matrix dimension= " << this->top_matrix.size1() << "x" << this->top_matrix.size2() << std::endl;
+      std::cout << "Matrix= " << std::endl << this->top_matrix << std::endl;
+      it1++;
+    }
+  }
+
 }
+int gr_flat_flowgraph::return_block_id(std::string block_find) {
+  for (size_t i = 0; i < this->blocks_list.size(); i++){
+    if (block_find == this->blocks_list[i])
+      return i;
+  }
+  return -1;
+}
+
 void 
 gr_flat_flowgraph::return_blocks_list() {
- for (size_t i = 0; i < this->blocks_list.size(); i++){
-    std::cout << "HEY BLOCK= " << blocks_list[i]->name() << std::endl;
-  }
+  //for (size_t i = 0; i < this->blocks_list.size(); i++){
+  //  std::cout << "HEY BLOCK= " << blocks_list[i]->name() << std::endl;
+  // }
 }
 void 
 gr_flat_flowgraph::set_top_matrix() {
   //////////////////////////////////////////////////////
   /// SET THE CONTENTS OF THE TOPOLOGY MATRIX       ////
   //////////////////////////////////////////////////////
+  std::cout << "Number of blocks= " << this->number_of_blocks << std::endl;
+  std::cout << "Number of edges= " << this->number_of_edges << std::endl;
+  std::cout << "Matrix dimension= " << this->top_matrix.size1() << "x" << this->top_matrix.size2() << std::endl;
+  std::cout << "Matrix= " << std::endl << this->top_matrix << std::endl;
 }
 void 
 gr_flat_flowgraph::return_top_matrix() {
@@ -254,7 +347,9 @@ gr_flat_flowgraph::connect_block_inputs(gr_basic_block_sptr block)
       std::cout << "Setting input " << dst_port << " from edge " << (*e) << std::endl;
       std::cout << "Src Block= " << src_grblock << " Dst Block= " << dst_grblock << std::endl;
     }
-
+    //this->number_of_edges = this->number_of_edges + 1;
+    //this->top_matrix.resize(this->number_of_edges, this->number_of_blocks);
+    //this->set_top_matrix();
     detail->set_input(dst_port, gr_buffer_add_reader(src_buffer, grblock->history()-1, grblock));
   }
 }

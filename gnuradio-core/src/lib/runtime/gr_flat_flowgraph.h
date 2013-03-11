@@ -63,10 +63,13 @@ public:
   void replace_endpoint(const gr_msg_endpoint &e, const gr_msg_endpoint &r, bool is_src);
   void clear_endpoint(const gr_msg_endpoint &e, bool is_src);
 
+  /////////////////////
+  // Al
   void set_blocks_list();
   void return_blocks_list();
   void set_top_matrix();
   void return_top_matrix();
+  int return_block_id(std::string block_find);
 private:
   gr_flat_flowgraph();
 
@@ -84,7 +87,9 @@ private:
   void setup_buffer_alignment(gr_block_sptr block);
 
   // Fayez
-  gr_block_vector_t blocks_list;
+  std::vector<std::string> blocks_list;
+  int number_of_blocks;
+  int number_of_edges;
   boost::numeric::ublas::matrix<double> top_matrix;
 };
 

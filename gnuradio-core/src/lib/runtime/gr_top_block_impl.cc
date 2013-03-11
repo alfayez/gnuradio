@@ -102,13 +102,18 @@ gr_top_block_impl::start(int max_noutput_items)
 
   // Create new flat flow graph by flattening hierarchy
   d_ffg = d_owner->flatten();
-
   // Validate new simple flow graph and wire it up
   d_ffg->validate();
-  d_ffg->setup_connections();
+
+  ///////////////////////////////
+  // Al
   d_ffg->set_blocks_list();
-  d_ffg->return_blocks_list();
   d_ffg->set_top_matrix();
+  d_ffg->return_blocks_list();
+
+  d_ffg->setup_connections();
+  d_ffg->set_top_matrix();
+
 
   d_scheduler = make_scheduler(d_ffg, d_max_noutput_items);
   d_state = RUNNING;

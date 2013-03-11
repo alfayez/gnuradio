@@ -97,6 +97,8 @@ digital_pfb_clock_sync_ccf::digital_pfb_clock_sync_ccf (double sps, float loop_b
   create_diff_taps(taps, dtaps);
   set_taps(taps, d_taps, d_filters);
   set_taps(dtaps, d_dtaps, d_diff_filters);
+
+  set_relative_rate(1/sps);
 }
 
 digital_pfb_clock_sync_ccf::~digital_pfb_clock_sync_ccf ()
