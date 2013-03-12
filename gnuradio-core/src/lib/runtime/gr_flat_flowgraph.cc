@@ -52,6 +52,7 @@ gr_flat_flowgraph::gr_flat_flowgraph()
 {
   number_of_blocks = 0;
   number_of_edges  = 0;
+  d_token_size     = GR_FIXED_BUFFER_SIZE;
 }
 
 gr_flat_flowgraph::~gr_flat_flowgraph()
@@ -211,17 +212,21 @@ gr_flat_flowgraph::set_top_matrix() {
   std::cout << "Matrix dimension= " << this->top_matrix.size1() << "x" << this->top_matrix.size2() << std::endl;
   std::cout << "Matrix= " << std::endl << this->top_matrix << std::endl;
 }
-//std::vector<std::string>
 std::string gr_flat_flowgraph::return_blocks_list(int index) {
   return blocks_list[index];
 }
-//boost::numeric::ublas::matrix<double>
 double
 gr_flat_flowgraph::return_top_matrix(int index1, int index2) {
   return top_matrix(index1, index2);
 }
-
-
+void
+gr_flat_flowgraph::setup_token_size(int token_size) {
+  d_token_size = token_size;
+}
+int
+gr_flat_flowgraph::return_token_size() {
+  return d_token_size;
+}
 gr_block_detail_sptr
 gr_flat_flowgraph::allocate_block_detail(gr_basic_block_sptr block)
 {

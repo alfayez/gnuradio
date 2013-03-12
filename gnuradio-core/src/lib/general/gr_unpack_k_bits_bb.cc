@@ -64,8 +64,6 @@ gr_unpack_k_bits_bb::work (int noutput_items,
     for (int j = d_k - 1; j >= 0; j--)
       out[n++] = (t >> j) & 0x01;
   }
-  std::cout << "UNPACK K BITS= " << d_k << std::endl;
-
   assert(n == noutput_items);
   return noutput_items;
 }

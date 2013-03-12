@@ -57,6 +57,10 @@ public:
   double top_matrix_top(int index1, int index2);
   int top_get_number_of_edges();
   int top_get_number_of_blocks();
+  void prealloc(int max_noutput_items=100000);
+  void alloc(int token_size, int max_noutput_items=100000);
+  void go();
+
 };
 
 #ifdef SWIGPYTHON

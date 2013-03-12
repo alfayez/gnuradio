@@ -95,7 +95,22 @@ gr_top_block::run(int max_noutput_items)
   start(max_noutput_items);
   wait();
 }
-
+void
+gr_top_block::prealloc(int max_noutput_items)
+{
+  d_impl->prealloc(max_noutput_items);
+}
+void
+gr_top_block::alloc(int token_size, int max_noutput_items)
+{
+  d_impl->alloc(token_size, max_noutput_items);
+}
+void
+gr_top_block::go()
+{
+  d_impl->go();
+  //wait();
+}
 void
 gr_top_block::lock()
 {

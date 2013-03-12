@@ -62,6 +62,16 @@ public:
    * the start function; see that function for more details.
    */
   void run(int max_noutput_items=100000);
+  ///////////////////////////////////////////////////////////////////
+  // AL
+  // performs the first stage of flowgraph parsing, flattening, and
+  // topology matrix construction
+  void prealloc(int max_noutput_items=100000);
+  // During this step the physical buffers are allocated 
+  void alloc(int token_size, int max_noutput_items=100000);
+  // This tells the flowgraph to start physically executing
+  void go();
+  ///////////////////////////////////////////////////////////////////
 
   /*!
    * Start the contained flowgraph.  Creates one or more threads to

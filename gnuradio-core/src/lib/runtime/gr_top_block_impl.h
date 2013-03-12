@@ -45,7 +45,9 @@ public:
 
   // Create and start scheduler threads
   void start(int max_noutput_items=100000);
-
+  void prealloc(int max_noutput_items=100000);
+  void alloc(int token_size, int max_noutput_items=100000);
+  void go();
   // Signal scheduler threads to stop
   void stop();
 

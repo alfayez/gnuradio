@@ -72,6 +72,8 @@ public:
   double return_top_matrix(int index1, int index2);
   int return_number_of_blocks();
   int return_number_of_edges();
+  void setup_token_size(int token_size);
+  int  return_token_size();
 private:
   gr_flat_flowgraph();
 
@@ -93,6 +95,7 @@ private:
   std::vector<std::string> blocks_list;
   int number_of_blocks;
   int number_of_edges;
+  int d_token_size;
   boost::numeric::ublas::matrix<double> top_matrix;
 };
 

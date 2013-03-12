@@ -112,9 +112,45 @@ gr_top_block_impl::start(int max_noutput_items)
   //d_ffg->return_blocks_list();
 
   d_ffg->setup_connections();
+  //d_ffg->set_top_matrix();
+
+
+  d_scheduler = make_scheduler(d_ffg, d_max_noutput_items);
+  d_state = RUNNING;
+}
+
+void
+gr_top_block_impl::prealloc(int max_noutput_items)
+{
+  gruel::scoped_lock	l(d_mutex);
+  d_max_noutput_items = max_noutput_items;  
+  if (d_state != IDLE)
+    throw std::runtime_error("top_block::start: top block already running or wait() not called after previous stop()");
+
+  if (d_lock_count > 0)
+    throw std::runtime_error("top_block::start: can't start with flow graph locked");
+
+  // Create new flat flow graph by flattening hierarchy
+  d_ffg = d_owner->flatten();
+  // Validate new simple flow graph and wire it up
+  d_ffg->validate();
+  ///////////////////////////////
+  // Al
+  d_ffg->set_blocks_list();
   d_ffg->set_top_matrix();
 
-
+}
+void
+gr_top_block_impl::alloc(int token_size, int max_noutput_items)
+{
+  d_max_noutput_items = max_noutput_items;
+  d_ffg->setup_token_size(token_size);
+  std::cout << "TOKEN SIZE= " << token_size << std::endl;
+  d_ffg->setup_connections();
+}
+void
+gr_top_block_impl::go()
+{
   d_scheduler = make_scheduler(d_ffg, d_max_noutput_items);
   d_state = RUNNING;
 }
