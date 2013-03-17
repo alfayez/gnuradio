@@ -51,6 +51,7 @@ class test_fft(gr_unittest.TestCase):
     def test_001(self):
 	tb = gr.top_block()
         fft_size = 32
+        fft_size2 = 64
         src_data = tuple([complex(primes[2*i], primes[2*i+1]) for i in range(fft_size)])
 
         expected_result = ((4377+4516j),
@@ -89,7 +90,7 @@ class test_fft(gr_unittest.TestCase):
         src = gr.vector_source_c(src_data)
         s2v = gr.stream_to_vector(gr.sizeof_gr_complex, fft_size)
         op  = fft.fft_vcc(fft_size, True, [], False)
-        v2s = gr.vector_to_stream(gr.sizeof_gr_complex, fft_size)
+        v2s = gr.vector_to_stream(gr.sizeof_gr_complex, fft_size2)
         dst = gr.vector_sink_c()
         tb.connect(src, s2v, op, v2s, dst)
         tb.run()
@@ -102,7 +103,7 @@ class test_fft(gr_unittest.TestCase):
     def test_002(self):
 	tb = gr.top_block()
         fft_size = 32
-
+        fft_size2 = 64
         tmp_data = ((4377+4516j),
                     (-1706.1268310546875+1638.4256591796875j),
                     (-915.2083740234375+660.69427490234375j),
@@ -143,7 +144,7 @@ class test_fft(gr_unittest.TestCase):
         src = gr.vector_source_c(src_data)
         s2v = gr.stream_to_vector(gr.sizeof_gr_complex, fft_size)
         op  = fft.fft_vcc(fft_size, False, [], False)
-        v2s = gr.vector_to_stream(gr.sizeof_gr_complex, fft_size)
+        v2s = gr.vector_to_stream(gr.sizeof_gr_complex, fft_size2)
         dst = gr.vector_sink_c()
         tb.connect(src, s2v, op, v2s, dst)
         tb.run()
@@ -157,8 +158,8 @@ class test_fft(gr_unittest.TestCase):
         # Same test as above, only use 2 threads
 
 	tb = gr.top_block()
-        fft_size = 32
-
+        fft_size  = 32
+        fft_size2 = 64
         tmp_data = ((4377+4516j),
                     (-1706.1268310546875+1638.4256591796875j),
                     (-915.2083740234375+660.69427490234375j),
@@ -201,7 +202,7 @@ class test_fft(gr_unittest.TestCase):
         src = gr.vector_source_c(src_data)
         s2v = gr.stream_to_vector(gr.sizeof_gr_complex, fft_size)
         op  = fft.fft_vcc(fft_size, False, [], False, nthreads)
-        v2s = gr.vector_to_stream(gr.sizeof_gr_complex, fft_size)
+        v2s = gr.vector_to_stream(gr.sizeof_gr_complex, fft_size2)
         dst = gr.vector_sink_c()
         tb.connect(src, s2v, op, v2s, dst)
         tb.run()

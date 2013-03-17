@@ -80,11 +80,13 @@ gr_flat_flowgraph::setup_connections()
   }
 
   // Connect message ports connetions
+  std::cout << "Start Message Ports" << std::endl;
   for(gr_msg_edge_viter_t i = d_msg_edges.begin(); i != d_msg_edges.end(); i++){
     if(GR_FLAT_FLOWGRAPH_DEBUG)
         std::cout << boost::format("flat_fg connecting msg primitives: (%s, %s)->(%s, %s)\n") %
                     i->src().block() % i->src().port() %
                     i->dst().block() % i->dst().port();
+    std::cout << "IN Message Ports" << std::endl;
     i->src().block()->message_port_sub( i->src().port(), pmt::pmt_cons(i->dst().block()->alias_pmt(), i->dst().port()) );
     }
   //////////////////////////////////////////////////////
@@ -113,10 +115,10 @@ gr_flat_flowgraph::set_blocks_list() {
 
   int src_id=-1;
   int dst_id=-1;
-  int cur_rate_src = 1;
-  int cur_rate_dst = 1;
-  int block_rate_src = 1;
-  int block_rate_dst = 1;
+  double cur_rate_src = 1;
+  double cur_rate_dst = 1;
+  double block_rate_src = 1;
+  double block_rate_dst = 1;
 
   int it1=0;
   int it2=0;
@@ -148,8 +150,8 @@ gr_flat_flowgraph::set_blocks_list() {
   for (int j=0; j < this->number_of_edges; j++)
     for (int k=0; k < this->number_of_blocks; k++)
       this->top_matrix(j,k) = 0;
-  std::cout << "Empty Matrix= ";
-  std::cout << this->top_matrix << std::endl;
+  //std::cout << "Empty Matrix= ";
+  //std::cout << this->top_matrix << std::endl;
   it1=0;
   for (size_t i = 0; i < blocks_temp.size(); i++){
     std::cout << "HEY BLOCK= " << blocks_temp[i]->name() << " Rel Rate= " << blocks_temp[i]->relative_rate() << std::endl;    
@@ -165,23 +167,31 @@ gr_flat_flowgraph::set_blocks_list() {
       dst_grblock = cast_to_block_sptr(dst_block);
       src_id = this->return_block_id(src_block->symbol_name());
       dst_id = this->return_block_id(dst_block->symbol_name());
-      //std::cout << "src block= " << src_block->name() << " id= " << src_id << " rate= " << src_grblock->relative_rate() << std::endl;
-      //std:: cout << "dst block= " << dst_block->name() << " dst id= " << dst_id << " rate= " << src_grblock->relative_rate() << std::endl;
       std::cout << "number of edges= " << this->number_of_edges << " number of blocks= " << this->number_of_blocks << std::endl;
 
 
       block_rate_src = src_grblock->relative_rate();
       block_rate_dst = dst_grblock->relative_rate();
-      //if (block_rate_src != 0)
-      //cur_rate_src = block_rate_src;
-      //if (block_rate_dst != 0)
-      //cur_rate_dst = block_rate_dst;
-      std::cout << "M[" << it1 << "," << src_id << "]= " << block_rate_src << std::endl;
-      std::cout << "M[" << it1 << "," << dst_id << "]= " << block_rate_dst << std::endl;
+      // I disagree with the fact that packed_to_unpacked rate=8
+      // seeing that it's converting data formats
+      //if (src_grblock->name() == "packed_to_unpacked_bb")
+      //cur_rate_src = 1;
+      //if (src_grblock->name() == "packed_to_unpacked_bb")
+      //cur_rate_dst = 1;
+
+      if ((dst_grblock->name() != "vector_to_stream")&&(dst_grblock->name() != "stream_to_vector"))
+	block_rate_dst = block_rate_src;
+      else
+	std::cout << "VECTOR STREAM BLOCK" << std::endl;
+      //this->top_matrix(it1,dst_id) = -block_rate_dst;
+
       this->top_matrix(it1,src_id) = block_rate_src;
       this->top_matrix(it1,dst_id) = -block_rate_dst;
+
       //this->top_matrix(this->number_of_edges,src_id) = i;
       //this->top_matrix(this->number_of_edges,dst_id) = i+1;
+      std::cout << "M[" << it1 << "," << src_id << "]= " << this->top_matrix(it1,src_id) << " " << src_grblock->name() << std::endl;
+      std::cout << "M[" << it1 << "," << dst_id << "]= " << this->top_matrix(it1,dst_id) << " " << dst_grblock->name() << std::endl;
       std::cout << "Matrix dimension= " << this->top_matrix.size1() << "x" << this->top_matrix.size2() << std::endl;
       std::cout << "Matrix= " << std::endl << this->top_matrix << std::endl;
       it1++;

@@ -1,7 +1,46 @@
-<testsuite errors="0" failures="0" name="unittest.suite.TestSuite" tests="3" time="0.012">
-  <testcase classname="__main__.test_fft" name="test_001" time="0.0050"></testcase>
-  <testcase classname="__main__.test_fft" name="test_002" time="0.0035"></testcase>
-  <testcase classname="__main__.test_fft" name="test_003" time="0.0037"></testcase>
+<testsuite errors="3" failures="0" name="unittest.suite.TestSuite" tests="3" time="0.033">
+  <testcase classname="__main__.test_fft" name="test_001" time="0.0263">
+    <error type="exceptions.ValueError">itemsize mismatch: fft_vcc_fftw(3):0 using 256, vector_to_stream(4):0 using 512
+  File "/usr/lib/python2.7/unittest/case.py", line 327, in run
+    testMethod()
+  File "./qa_fft.py", line 95, in test_001
+    tb.connect(src, s2v, op, v2s, dst)
+  File "/opt/usr/gr/lib/python2.7/dist-packages/gnuradio/gr/top_block.py", line 124, in connect
+    self._connect(points[i-1], points[i])
+  File "/opt/usr/gr/lib/python2.7/dist-packages/gnuradio/gr/top_block.py", line 136, in _connect
+    dst_block.to_basic_block(), dst_port)
+  File "/opt/usr/gr/lib/python2.7/dist-packages/gnuradio/gr/gnuradio_core_runtime.py", line 3159, in primitive_connect
+    return _gnuradio_core_runtime.gr_top_block_sptr_primitive_connect(self, *args)
+    </error>
+  </testcase>
+  <testcase classname="__main__.test_fft" name="test_002" time="0.0040">
+    <error type="exceptions.ValueError">itemsize mismatch: fft_vcc_fftw(9):0 using 256, vector_to_stream(10):0 using 512
+  File "/usr/lib/python2.7/unittest/case.py", line 327, in run
+    testMethod()
+  File "./qa_fft.py", line 149, in test_002
+    tb.connect(src, s2v, op, v2s, dst)
+  File "/opt/usr/gr/lib/python2.7/dist-packages/gnuradio/gr/top_block.py", line 124, in connect
+    self._connect(points[i-1], points[i])
+  File "/opt/usr/gr/lib/python2.7/dist-packages/gnuradio/gr/top_block.py", line 136, in _connect
+    dst_block.to_basic_block(), dst_port)
+  File "/opt/usr/gr/lib/python2.7/dist-packages/gnuradio/gr/gnuradio_core_runtime.py", line 3159, in primitive_connect
+    return _gnuradio_core_runtime.gr_top_block_sptr_primitive_connect(self, *args)
+    </error>
+  </testcase>
+  <testcase classname="__main__.test_fft" name="test_003" time="0.0020">
+    <error type="exceptions.ValueError">itemsize mismatch: fft_vcc_fftw(15):0 using 256, vector_to_stream(16):0 using 512
+  File "/usr/lib/python2.7/unittest/case.py", line 327, in run
+    testMethod()
+  File "./qa_fft.py", line 207, in test_003
+    tb.connect(src, s2v, op, v2s, dst)
+  File "/opt/usr/gr/lib/python2.7/dist-packages/gnuradio/gr/top_block.py", line 124, in connect
+    self._connect(points[i-1], points[i])
+  File "/opt/usr/gr/lib/python2.7/dist-packages/gnuradio/gr/top_block.py", line 136, in _connect
+    dst_block.to_basic_block(), dst_port)
+  File "/opt/usr/gr/lib/python2.7/dist-packages/gnuradio/gr/gnuradio_core_runtime.py", line 3159, in primitive_connect
+    return _gnuradio_core_runtime.gr_top_block_sptr_primitive_connect(self, *args)
+    </error>
+  </testcase>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
