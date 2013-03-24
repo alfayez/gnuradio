@@ -178,11 +178,18 @@ gr_flat_flowgraph::set_blocks_list() {
       //cur_rate_src = 1;
       //if (src_grblock->name() == "packed_to_unpacked_bb")
       //cur_rate_dst = 1;
-
-      if ((dst_grblock->name() != "vector_to_stream")&&(dst_grblock->name() != "stream_to_vector"))
-	block_rate_dst = block_rate_src;
-      else
-	std::cout << "VECTOR STREAM BLOCK" << std::endl;
+      // framer sink is a general special case of a sink decimator
+      // block so its rate change should propagate to the previous block
+      //if (dst_grblock->name() == "framer_sink_1") {
+      //if (block_rate_dst < block_rate_src) {
+      //block_rate_src = block_rate_dst;
+      // }
+      //else {
+	if ((dst_grblock->name() != "vector_to_stream")&&(dst_grblock->name() != "stream_to_vector"))
+	  block_rate_dst = block_rate_src;
+	else
+	  std::cout << "VECTOR STREAM BLOCK" << std::endl;
+	//}
       //this->top_matrix(it1,dst_id) = -block_rate_dst;
 
       this->top_matrix(it1,src_id) = block_rate_src;
@@ -192,8 +199,8 @@ gr_flat_flowgraph::set_blocks_list() {
       //this->top_matrix(this->number_of_edges,dst_id) = i+1;
       std::cout << "M[" << it1 << "," << src_id << "]= " << this->top_matrix(it1,src_id) << " " << src_grblock->name() << std::endl;
       std::cout << "M[" << it1 << "," << dst_id << "]= " << this->top_matrix(it1,dst_id) << " " << dst_grblock->name() << std::endl;
-      std::cout << "Matrix dimension= " << this->top_matrix.size1() << "x" << this->top_matrix.size2() << std::endl;
-      std::cout << "Matrix= " << std::endl << this->top_matrix << std::endl;
+      //std::cout << "Matrix dimension= " << this->top_matrix.size1() << "x" << this->top_matrix.size2() << std::endl;
+      //std::cout << "Matrix= " << std::endl << this->top_matrix << std::endl;
       it1++;
     }
   }
