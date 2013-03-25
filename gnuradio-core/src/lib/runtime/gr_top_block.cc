@@ -70,6 +70,11 @@ gr_top_block::wait()
 {
   d_impl->wait();
 }
+// Set the blocks firing vector
+void
+gr_top_block::set_blocks_firing(int index, int value) {
+  d_impl->set_blocks_firing(index, value);
+}
 // Get the list of processes
 std::string
 gr_top_block::blocks_list_top(int index) {
@@ -81,6 +86,18 @@ double
 gr_top_block::top_matrix_top(int index1, int index2) {
   //std::cout << "TOP_matrix= " << std::endl << d_impl->top_matrix_top() << std::endl;
   return d_impl->top_matrix_top(index1, index2);
+}
+void
+gr_top_block::print_top_matrix() {
+  d_impl->print_top_matrix();
+}
+void
+gr_top_block::print_blocks_firing() {
+  d_impl->print_blocks_firing();
+}
+void
+gr_top_block::set_top_matrix(int index1, int index2, double value) {
+  d_impl->set_top_matrix(index1, index2, value);
 }
 int gr_top_block::top_get_number_of_blocks() {
   return d_impl->get_number_of_blocks();
@@ -101,9 +118,9 @@ gr_top_block::prealloc(int max_noutput_items)
   d_impl->prealloc(max_noutput_items);
 }
 void
-gr_top_block::alloc(int token_size, int max_noutput_items)
+gr_top_block::alloc(int token_size, int alloc_policy, int max_noutput_items)
 {
-  d_impl->alloc(token_size, max_noutput_items);
+  d_impl->alloc(token_size, alloc_policy, max_noutput_items);
 }
 void
 gr_top_block::go()

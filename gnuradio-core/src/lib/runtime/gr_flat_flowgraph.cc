@@ -135,6 +135,7 @@ gr_flat_flowgraph::set_blocks_list() {
   std::cout << "Before filling boost vector" << std::endl;
   // set vector size to the number of blocks
   this->blocks_list.resize(blocks_temp.size());
+  this->blocks_firing.resize(blocks_temp.size());
   for (size_t i = 0; i < blocks_temp.size(); i++){
     //this->blocks_list[i] = blocks_temp[i]->symbol_name();
     //this->blocks_list.resize(i);
@@ -206,6 +207,24 @@ gr_flat_flowgraph::set_blocks_list() {
   }
 
 }
+void
+gr_flat_flowgraph::print_top_matrix() {
+  //std::cout << "Gnuradio Topology Matrix= " << std::endl << top_matrix << std::endl;
+  std::cout << "Gnuradio Topology Matrix= " << std::endl;
+  for (size_t i=0; i < this->number_of_edges; i++) {
+    for (size_t j=0; j < this->number_of_blocks; j++) {
+      std::cout << top_matrix(i,j) << "  ";
+      }
+    std::cout << std::endl;
+  }
+}
+void
+gr_flat_flowgraph::print_blocks_firing() {
+  std::cout << "Gnuradio Firing= " << std::endl;
+  for (size_t i = 0; i < this->blocks_firing.size(); i++){
+    std::cout << this->blocks_firing[i] << std::endl;
+  }
+}
 int gr_flat_flowgraph::return_number_of_blocks() {
   return this->number_of_blocks;
 }
@@ -220,14 +239,15 @@ int gr_flat_flowgraph::return_block_id(std::string block_find) {
   return -1;
 }
 void 
-gr_flat_flowgraph::set_top_matrix() {
+gr_flat_flowgraph::set_top_matrix(int index1, int index2, double value) {
   //////////////////////////////////////////////////////
   /// SET THE CONTENTS OF THE TOPOLOGY MATRIX       ////
   //////////////////////////////////////////////////////
-  std::cout << "Number of blocks= " << this->number_of_blocks << std::endl;
-  std::cout << "Number of edges= " << this->number_of_edges << std::endl;
-  std::cout << "Matrix dimension= " << this->top_matrix.size1() << "x" << this->top_matrix.size2() << std::endl;
-  std::cout << "Matrix= " << std::endl << this->top_matrix << std::endl;
+  top_matrix(index1, index2) = value;
+}
+void
+gr_flat_flowgraph::set_blocks_firing(int index, int value) {
+  this->blocks_firing[index] = value;
 }
 std::string gr_flat_flowgraph::return_blocks_list(int index) {
   return blocks_list[index];
@@ -289,17 +309,30 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
   // *2 because we're now only filling them 1/2 way in order to
   // increase the available parallelism when using the TPB scheduler.
   // (We're double buffering, where we used to single buffer)
-  int nitems = s_fixed_buffer_size * 2 / item_size;
+  /////////////////////////////////////////////////////
+  // FAYEZ - New buffer allocation policy
+  int nitems = 0;
+
+  if (this->alloc_policy == ALLOC_DEF) {
+    std::cout << "ALLOC_DEF Policy" << std::endl;
+    nitems = s_fixed_buffer_size * 2 / item_size;
+    // Make sure there are at least twice the output_multiple no. of items
+    if (nitems < 2*grblock->output_multiple())	// Note: this means output_multiple()
+      nitems = 2*grblock->output_multiple();	// can't be changed by block dynamically
+    std::cout << "nitem2= " << nitems << " output_relrate= " << grblock->relative_rate() << " max_noutput= " << grblock->max_noutput_items() << std::endl;
+  }
+  else {
+    std::cout << "ALLOC_TOP Policy" << std::endl;
+    nitems = s_fixed_buffer_size * 2 / item_size;
+  }
   std::cout << "s_fixed_buffer_size= " << s_fixed_buffer_size << std::endl;
   std::cout << "nitem1= " << nitems << " item_size= " << item_size << std::endl;
-  // Make sure there are at least twice the output_multiple no. of items
-  if (nitems < 2*grblock->output_multiple())	// Note: this means output_multiple()
-    nitems = 2*grblock->output_multiple();	// can't be changed by block dynamically
-  std::cout << "nitem2= " << nitems << " output_relrate= " << grblock->relative_rate() << " max_noutput= " << grblock->max_noutput_items() << std::endl;
+
   // If any downstream blocks are decimators and/or have a large output_multiple,
   // ensure we have a buffer at least twice their decimation factor*output_multiple
   gr_basic_block_vector_t blocks = calc_downstream_blocks(block, port);
 
+  //////////////////////////////////////////////////////////////////////////////////////////
   // limit buffer size if indicated
   if(grblock->max_output_buffer(port) > 0) {
     //    std::cout << "constraining output items to " << block->max_output_buffer(port) << "\n";
@@ -318,27 +351,30 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
     if( nitems < 1 )
       throw std::runtime_error("problems allocating a buffer with the given min output buffer constraint!");
   }
+  //////////////////////////////////////////////////////////////////////////////////////////
   /* TODO: unnecessary if we have topology matrix since we already the
   decimation and interpolation rates for each channel
 
   Not really, the topology matrix contains the relative rates for the
   hierarchical components but not the hierarchical composition of an actor
   */
-  
-  for (gr_basic_block_viter_t p = blocks.begin(); p != blocks.end(); p++) {
-    gr_block_sptr dgrblock = cast_to_block_sptr(*p);
-    if (!dgrblock)
-      throw std::runtime_error("allocate_buffer found non-gr_block");
+  //////////////////////////////////////////////////////////////////////////////////////////  
+  if (this->alloc_policy == ALLOC_DEF) {
+    for (gr_basic_block_viter_t p = blocks.begin(); p != blocks.end(); p++) {
+      gr_block_sptr dgrblock = cast_to_block_sptr(*p);
+      if (!dgrblock)
+	throw std::runtime_error("allocate_buffer found non-gr_block");
 
-    double decimation = (1.0/dgrblock->relative_rate());
-    int multiple      = dgrblock->output_multiple();
-    int history       = dgrblock->history();
-    //std::cout << "dgrblock= " << dgrblock << " decimation " <<
-    //decimation << " multiple=" << multiple << " history= " << history << " max_noutput= " << dgrblock->detail()->output(0)->d_bufsize << std::endl;
-    nitems = std::max(nitems, static_cast<int>(2*(decimation*multiple+history)));
-    std::cout << "final nitem= " << nitems << std::endl;
+      double decimation = (1.0/dgrblock->relative_rate());
+      int multiple      = dgrblock->output_multiple();
+      int history       = dgrblock->history();
+      //std::cout << "dgrblock= " << dgrblock << " decimation " <<
+      //decimation << " multiple=" << multiple << " history= " << history << " max_noutput= " << dgrblock->detail()->output(0)->d_bufsize << std::endl;
+      nitems = std::max(nitems, static_cast<int>(2*(decimation*multiple+history)));
+      std::cout << "final nitem= " << nitems << std::endl;
+    }
   }
-
+  //////////////////////////////////////////////////////////////////////////////////////////
 //  std::cout << "gr_make_buffer(" << nitems << ", " << item_size << ", " << grblock << "\n";
   return gr_make_buffer(nitems, item_size, grblock);
 }

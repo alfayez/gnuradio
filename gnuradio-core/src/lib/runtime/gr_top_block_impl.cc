@@ -108,7 +108,7 @@ gr_top_block_impl::start(int max_noutput_items)
   ///////////////////////////////
   // Al
   d_ffg->set_blocks_list();
-  d_ffg->set_top_matrix();
+  //d_ffg->set_top_matrix();
   //d_ffg->return_blocks_list();
 
   d_ffg->setup_connections();
@@ -137,15 +137,16 @@ gr_top_block_impl::prealloc(int max_noutput_items)
   ///////////////////////////////
   // Al
   d_ffg->set_blocks_list();
-  d_ffg->set_top_matrix();
+  //d_ffg->set_top_matrix();
 
 }
 void
-gr_top_block_impl::alloc(int token_size, int max_noutput_items)
+gr_top_block_impl::alloc(int token_size, int alloc_policy, int max_noutput_items)
 {
   d_max_noutput_items = max_noutput_items;
   d_ffg->setup_token_size(token_size);
-  std::cout << "TOKEN SIZE= " << token_size << std::endl;
+  d_ffg->alloc_policy = alloc_policy;
+  std::cout << "TOKEN SIZE= " << token_size << " Allocation policy= " << d_ffg->alloc_policy << std::endl;
   d_ffg->setup_connections();
 }
 void
@@ -170,6 +171,22 @@ int gr_top_block_impl::get_number_of_blocks() {
 }
 int gr_top_block_impl::get_number_of_edges() {
   return d_ffg->return_number_of_edges();
+}
+void
+gr_top_block_impl::set_top_matrix(int index1, int index2, double value) {
+  d_ffg->set_top_matrix(index1, index2, value);
+}
+void
+gr_top_block_impl::set_blocks_firing(int index, int value) {
+  d_ffg->set_blocks_firing(index, value);
+}
+void
+gr_top_block_impl::print_top_matrix() {
+  d_ffg->print_top_matrix();
+}
+void
+gr_top_block_impl::print_blocks_firing() {
+  d_ffg->print_blocks_firing();
 }
 
 void

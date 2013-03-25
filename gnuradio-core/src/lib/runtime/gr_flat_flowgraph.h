@@ -22,6 +22,8 @@
 
 #ifndef INCLUDED_GR_FLAT_FLOWGRAPH_H
 #define INCLUDED_GR_FLAT_FLOWGRAPH_H
+#define ALLOC_DEF 0
+#define ALLOC_TOP 1
 
 #include <gr_core_api.h>
 #include <gr_flowgraph.h>
@@ -66,7 +68,9 @@ public:
   /////////////////////
   // Al
   void set_blocks_list();
-  void set_top_matrix();
+  void set_top_matrix(int index1, int index2, double value);
+  void set_blocks_firing(int index, int value);
+  //void set_blocks_firing();
   int return_block_id(std::string block_find);
   std::string return_blocks_list(int index);
   double return_top_matrix(int index1, int index2);
@@ -74,6 +78,9 @@ public:
   int return_number_of_edges();
   void setup_token_size(int token_size);
   int  return_token_size();
+  void print_top_matrix();
+  void print_blocks_firing();
+  int alloc_policy;
 private:
   gr_flat_flowgraph();
 
@@ -93,6 +100,7 @@ private:
   // Fayez
   //std::vector<std::string> blocks_list;
   std::vector<std::string> blocks_list;
+  std::vector<int> blocks_firing;
   int number_of_blocks;
   int number_of_edges;
   int d_token_size;

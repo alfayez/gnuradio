@@ -57,8 +57,12 @@ public:
   double top_matrix_top(int index1, int index2);
   int top_get_number_of_edges();
   int top_get_number_of_blocks();
+  void set_blocks_firing(int index, int value);
+  void set_top_matrix(int index1, int index2, double value);
+  void print_top_matrix();
+  void print_blocks_firing();
   void prealloc(int max_noutput_items=100000);
-  void alloc(int token_size, int max_noutput_items=100000);
+  void alloc(int token_size, int alloc_policy=0, int max_noutput_items=100000);
   void go();
 
 };

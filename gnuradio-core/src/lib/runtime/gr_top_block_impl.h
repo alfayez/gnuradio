@@ -46,7 +46,7 @@ public:
   // Create and start scheduler threads
   void start(int max_noutput_items=100000);
   void prealloc(int max_noutput_items=100000);
-  void alloc(int token_size, int max_noutput_items=100000);
+  void alloc(int token_size, int alloc_policy=0, int max_noutput_items=100000);
   void go();
   // Signal scheduler threads to stop
   void stop();
@@ -75,8 +75,12 @@ public:
   // Get the topology matrix
   //boost::numeric::ublas::matrix<double> top_matrix_top();
   double top_matrix_top(int index1, int index2);
+  void set_top_matrix(int index1, int index2, double value);
+  void set_blocks_firing(int index, int value);
   int get_number_of_blocks();
   int get_number_of_edges();
+  void print_top_matrix();
+  void print_blocks_firing();
 protected:
 
   enum tb_state { IDLE, RUNNING };

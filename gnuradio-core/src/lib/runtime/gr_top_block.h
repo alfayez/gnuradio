@@ -68,7 +68,7 @@ public:
   // topology matrix construction
   void prealloc(int max_noutput_items=100000);
   // During this step the physical buffers are allocated 
-  void alloc(int token_size, int max_noutput_items=100000);
+  void alloc(int token_size, int alloc_policy=0, int max_noutput_items=100000);
   // This tells the flowgraph to start physically executing
   void go();
   ///////////////////////////////////////////////////////////////////
@@ -141,8 +141,13 @@ public:
 
   // Get the topology matrix
   double top_matrix_top(int index1, int index2);
+  void set_top_matrix(int index1, int index2, double value);
+  void set_blocks_firing(int index, int value);
+  void top_set_blocks_list(int index, int value);
   int top_get_number_of_blocks();
   int top_get_number_of_edges();
+  void print_top_matrix();
+  void print_blocks_firing();
 
 };
 
