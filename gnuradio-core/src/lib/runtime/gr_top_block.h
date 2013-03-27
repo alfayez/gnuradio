@@ -148,6 +148,7 @@ public:
   int top_get_number_of_edges();
   void print_top_matrix();
   void print_blocks_firing();
+  double get_performance_measure(int index, int measure);
 
 };
 

@@ -48,6 +48,7 @@ public:
   void prealloc(int max_noutput_items=100000);
   void alloc(int token_size, int alloc_policy=0, int max_noutput_items=100000);
   void go();
+  double get_performance_measure(int index, int measure);
   // Signal scheduler threads to stop
   void stop();
 

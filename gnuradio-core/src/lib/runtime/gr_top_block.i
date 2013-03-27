@@ -63,6 +63,7 @@ public:
   void print_blocks_firing();
   void prealloc(int max_noutput_items=100000);
   void alloc(int token_size, int alloc_policy=0, int max_noutput_items=100000);
+  double get_performance_measure(int index, int measure);
   void go();
 
 };

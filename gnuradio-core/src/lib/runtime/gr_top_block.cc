@@ -105,7 +105,10 @@ int gr_top_block::top_get_number_of_blocks() {
 int gr_top_block::top_get_number_of_edges() {
   return d_impl->get_number_of_edges();
 }
-
+double
+gr_top_block::get_performance_measure(int index, int measure) {
+  return d_impl->get_performance_measure(index, measure);
+}
 void
 gr_top_block::run(int max_noutput_items)
 {

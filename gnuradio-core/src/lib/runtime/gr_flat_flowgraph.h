@@ -25,6 +25,9 @@
 #define ALLOC_DEF 0
 #define ALLOC_TOP 1
 
+#define EXE_TIME 0
+#define TOT_PERF 1
+
 #include <gr_core_api.h>
 #include <gr_flowgraph.h>
 #include <gr_block.h>
@@ -81,6 +84,8 @@ public:
   void print_top_matrix();
   void print_blocks_firing();
   int alloc_policy;
+  void set_performance_measure();
+  double get_performance_measure(int index, int measure);
 private:
   gr_flat_flowgraph();
 
@@ -98,12 +103,23 @@ private:
   void setup_buffer_alignment(gr_block_sptr block);
 
   // Fayez
-  //std::vector<std::string> blocks_list;
+  ///////////////////////////////////////////////
+  // Block Info
+  // Block Names
   std::vector<std::string> blocks_list;
+  // Block Performance Measurement
+  // [0]-> Execution Time
+  boost::numeric::ublas::matrix<double> blocks_perf_info;
+  // Blocks firing schedule
   std::vector<int> blocks_firing;
+  ///////////////////////////////////////////////
+  // Total number of blocks in the graph
   int number_of_blocks;
+  // total number of channels in the graph
   int number_of_edges;
+  // The size of each token
   int d_token_size;
+  // the Topology matrix inside of gnuradio
   boost::numeric::ublas::matrix<double> top_matrix;
 };
 

@@ -180,6 +180,9 @@ void
 gr_top_block_impl::set_blocks_firing(int index, int value) {
   d_ffg->set_blocks_firing(index, value);
 }
+double gr_top_block_impl::get_performance_measure(int index, int measure) {
+  return d_ffg->get_performance_measure(index, measure);
+}
 void
 gr_top_block_impl::print_top_matrix() {
   d_ffg->print_top_matrix();
@@ -194,6 +197,7 @@ gr_top_block_impl::stop()
 {
   if (d_scheduler)
     d_scheduler->stop();
+  d_ffg->set_performance_measure();
 }
 
 
