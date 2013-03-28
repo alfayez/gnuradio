@@ -109,7 +109,16 @@ gr_flat_flowgraph::set_performance_measure() {
   used_blocks = this->topological_sort(used_blocks);
   blocks_temp = gr_flat_flowgraph::make_block_vector(used_blocks);
   for (size_t i = 0; i < this->blocks_list.size(); i++) {
-    this->blocks_perf_info(i,EXE_TIME)= blocks_temp[i]->pc_work_time();
+    this->blocks_perf_info(i,EXE_TIME)     = blocks_temp[i]->pc_work_time();
+    this->blocks_perf_info(i,EXE_TIME_VAR) = blocks_temp[i]->pc_work_time_var();
+    this->blocks_perf_info(i,PRODUCED)     = blocks_temp[i]->pc_nproduced();
+    this->blocks_perf_info(i,PRODUCED_VAR) = blocks_temp[i]->pc_nproduced_var();
+    this->blocks_perf_info(i,NOUTPUT)      = blocks_temp[i]->pc_noutput_items();
+    this->blocks_perf_info(i,NOUTPUT_VAR)  = blocks_temp[i]->pc_noutput_items_var();
+    this->blocks_perf_info(i,IBUFF_FUL)    = blocks_temp[i]->pc_input_buffers_full(0);
+    this->blocks_perf_info(i,IBUFF_FUL_VAR)= blocks_temp[i]->pc_input_buffers_full_var(0);
+    this->blocks_perf_info(i,OBUFF_FUL)    = blocks_temp[i]->pc_output_buffers_full(0);
+    this->blocks_perf_info(i,OBUFF_FUL_VAR)= blocks_temp[i]->pc_output_buffers_full_var(0);
   }
 }
 double

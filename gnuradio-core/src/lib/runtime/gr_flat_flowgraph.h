@@ -25,8 +25,18 @@
 #define ALLOC_DEF 0
 #define ALLOC_TOP 1
 
-#define EXE_TIME 0
-#define TOT_PERF 1
+#define TOT_PERF 10
+
+#define EXE_TIME      0
+#define EXE_TIME_VAR  1
+#define PRODUCED      2
+#define PRODUCED_VAR  3
+#define NOUTPUT       4
+#define NOUTPUT_VAR   5
+#define IBUFF_FUL     6
+#define IBUFF_FUL_VAR 7
+#define OBUFF_FUL     8
+#define OBUFF_FUL_VAR 9
 
 #include <gr_core_api.h>
 #include <gr_flowgraph.h>
