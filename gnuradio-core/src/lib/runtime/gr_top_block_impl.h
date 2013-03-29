@@ -82,6 +82,7 @@ public:
   int get_number_of_edges();
   void print_top_matrix();
   void print_blocks_firing();
+  int  get_block_io(int block_index, int channel_index);
 protected:
 
   enum tb_state { IDLE, RUNNING };

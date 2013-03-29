@@ -85,6 +85,8 @@ public:
   void set_blocks_firing(int index, int value);
   //void set_blocks_firing();
   int return_block_id(std::string block_find);
+  int return_channel_id(std::string channel_find);
+  void print_channels_list();
   std::string return_blocks_list(int index);
   double return_top_matrix(int index1, int index2);
   int return_number_of_blocks();
@@ -96,6 +98,7 @@ public:
   int alloc_policy;
   void set_performance_measure();
   double get_performance_measure(int index, int measure);
+  int get_block_io(int block_index, int channel_index);
 private:
   gr_flat_flowgraph();
 
@@ -117,6 +120,8 @@ private:
   // Block Info
   // Block Names
   std::vector<std::string> blocks_list;
+  std::vector<int> blocks_io;
+  std::vector<std::string> channels_list;
   // Block Performance Measurement
   // [0]-> Execution Time
   boost::numeric::ublas::matrix<double> blocks_perf_info;
@@ -131,6 +136,7 @@ private:
   int d_token_size;
   // the Topology matrix inside of gnuradio
   boost::numeric::ublas::matrix<double> top_matrix;
+  void set_block_io();
 };
 
 #endif /* INCLUDED_GR_FLAT_FLOWGRAPH_H */

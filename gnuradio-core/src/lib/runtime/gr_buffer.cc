@@ -124,7 +124,6 @@ gr_buffer::allocate_buffer (int nitems, size_t sizeof_item)
 
   // If we rounded-up a whole bunch, give the user a heads up.
   // This only happens if sizeof_item is not a power of two.
-
   if (nitems > 2 * orig_nitems && nitems * (int) sizeof_item > granularity){
     std::cerr << "gr_buffer::allocate_buffer: warning: tried to allocate\n"
 	      << "   " << orig_nitems << " items of size "
@@ -135,6 +134,7 @@ gr_buffer::allocate_buffer (int nitems, size_t sizeof_item)
   }
 
   d_bufsize = nitems;
+  //std::cout << "GR_BUFF nitems= " << nitems << " orig= " << orig_nitems << " granularity= " << granularity;
   d_vmcircbuf = gr_vmcircbuf_sysconfig::make (d_bufsize * d_sizeof_item);
   if (d_vmcircbuf == 0){
     std::cerr << "gr_buffer::allocate_buffer: failed to allocate buffer of size "

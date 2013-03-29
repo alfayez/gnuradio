@@ -140,13 +140,17 @@ gr_top_block_impl::prealloc(int max_noutput_items)
   //d_ffg->set_top_matrix();
 
 }
+int
+gr_top_block_impl::get_block_io(int block_index, int channel_index) {
+  return d_ffg->get_block_io(block_index, channel_index);
+}
 void
 gr_top_block_impl::alloc(int token_size, int alloc_policy, int max_noutput_items)
 {
   d_max_noutput_items = max_noutput_items;
   d_ffg->setup_token_size(token_size);
   d_ffg->alloc_policy = alloc_policy;
-  std::cout << "TOKEN SIZE= " << token_size << " Allocation policy= " << d_ffg->alloc_policy << std::endl;
+  //std::cout << "TOKEN SIZE= " << token_size << " Allocation policy= " << d_ffg->alloc_policy << std::endl;
   d_ffg->setup_connections();
 }
 void
@@ -195,9 +199,10 @@ gr_top_block_impl::print_blocks_firing() {
 void
 gr_top_block_impl::stop()
 {
+  d_ffg->set_performance_measure();
   if (d_scheduler)
     d_scheduler->stop();
-  d_ffg->set_performance_measure();
+  //d_ffg->set_performance_measure();
 }
 
 

@@ -81,7 +81,6 @@ gr_framer_sink_1::gr_framer_sink_1(gr_msg_queue_sptr target_queue)
 {
   enter_search();
   set_relative_rate(1.0/8.0); 
-  std::cout << "INSIDE FRAMER SINK, rate= " << (1.0/8.0) << std::endl;
 }
 
 gr_framer_sink_1::~gr_framer_sink_1 ()

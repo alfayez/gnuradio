@@ -109,6 +109,10 @@ double
 gr_top_block::get_performance_measure(int index, int measure) {
   return d_impl->get_performance_measure(index, measure);
 }
+int 
+gr_top_block::get_block_io(int block_index, int channel_index) {
+  return d_impl->get_block_io(block_index, channel_index);
+}
 void
 gr_top_block::run(int max_noutput_items)
 {
