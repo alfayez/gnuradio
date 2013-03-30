@@ -154,7 +154,8 @@ gr_top_block_impl::alloc(int token_size, int alloc_policy, int max_noutput_items
   d_max_noutput_items = max_noutput_items;
   d_ffg->setup_token_size(token_size);
   d_ffg->alloc_policy = alloc_policy;
-  std::cout << "TOKEN SIZE= " << token_size << " Allocation policy= " << d_ffg->alloc_policy << std::endl;
+  if (GR_TOP_BLOCK_IMPL_DEBUG)
+    std::cout << "TOKEN SIZE= " << token_size << " Allocation policy= " << d_ffg->alloc_policy << std::endl;
   d_ffg->setup_connections();
 }
 void
@@ -200,24 +201,28 @@ double
 gr_top_block_impl::get_pc_performance_metric(int metric, int index) {
   double value = 0.0;
        
-  if (NOUTPUT) 
+  if (metric == NOUTPUT) 
     value = d_ffg->blocks_noutput[index];
-  else if (NOUTPUT_VAR)
+  else if (metric == NOUTPUT_VAR)
     value = d_ffg->blocks_noutput_var[index];
-  else if (NPRODUCED)
+  else if (metric == NPRODUCED)
     value = d_ffg->blocks_nproduced[index];
-  else if (NPRODUCED_VAR)
+  else if (metric == NPRODUCED_VAR)
     value = d_ffg->blocks_nproduced_var[index];
-  else if (OUTPUT_BUFF)
+  else if (metric == OUTPUT_BUFF)
     value = d_ffg->blocks_output_buff[index];
-  else if (OUTPUT_BUFF_VAR)
+  else if (metric == OUTPUT_BUFF_VAR)
     value = d_ffg->blocks_output_buff_var[index];
-  else if (WORK_TIME)
+  else if (metric == WORK_TIME) {
     value = d_ffg->blocks_work_time[index];
-  else if (WORK_TIME_VAR)
+    //std::cout << "GET PC<" << index << ">= " << value << std::endl;
+  }
+  else if (metric ==  WORK_TIME_VAR)
     value = d_ffg->blocks_work_time_var[index];
-  else
+  else {
+    std::cerr << "Metric= " << metric << " Not recognized" << std::endl;
     value = -1.0;
+  }
   
   return value;
 }
@@ -233,6 +238,17 @@ gr_top_block_impl::set_pc_performance_metric() {
     d_ffg->blocks_output_buff_var[i] = d_ffg->blocks_top[i]->pc_output_buffers_full_var(0);
     d_ffg->blocks_work_time[i]       = d_ffg->blocks_top[i]->pc_work_time();
     d_ffg->blocks_work_time_var[i]   = d_ffg->blocks_top[i]->pc_work_time_var();
+    if (GR_TOP_BLOCK_IMPL_DEBUG)    
+      std::cout << "SET block= " << d_ffg->blocks_list[i] << " time= " << d_ffg->blocks_work_time[i] << std::endl;
+
+  }
+  
+}
+void
+gr_top_block_impl::reset_pc_performance_metric() {
+ 
+  for (int i=0; i<d_ffg->blocks_list.size(); i++) {
+    d_ffg->blocks_top[i]->reset_perf_counters();
   }
   
 }

@@ -35,7 +35,7 @@
 
 using namespace boost::assign;
 
-#define GR_FLAT_FLOWGRAPH_DEBUG  1
+#define GR_FLAT_FLOWGRAPH_DEBUG  0
 
 // 32Kbyte buffer size between blocks
 #define GR_FIXED_BUFFER_SIZE (32*(1L<<10))
@@ -73,14 +73,17 @@ gr_flat_flowgraph::setup_connections()
     connect_block_inputs(*p);
 
     gr_block_sptr block = cast_to_block_sptr(*p);
-    std::cout << "2Relative Rate " << block->relative_rate() << std::endl;
-    std::cout << "2Fixed Rate    " << block->fixed_rate() << std::endl;
+    if (GR_FLAT_FLOWGRAPH_DEBUG) {
+      std::cout << "2Relative Rate " << block->relative_rate() << std::endl;
+      std::cout << "2Fixed Rate    " << block->fixed_rate() << std::endl;
+    }
     block->set_unaligned(0);
     block->set_is_unaligned(false);
   }
 
   // Connect message ports connetions
-  std::cout << "Start Message Ports" << std::endl;
+    if (GR_FLAT_FLOWGRAPH_DEBUG)
+      std::cout << "Start Message Ports" << std::endl;
   for(gr_msg_edge_viter_t i = d_msg_edges.begin(); i != d_msg_edges.end(); i++){
     if(GR_FLAT_FLOWGRAPH_DEBUG)
         std::cout << boost::format("flat_fg connecting msg primitives: (%s, %s)->(%s, %s)\n") %
@@ -130,8 +133,9 @@ gr_flat_flowgraph::set_blocks_list() {
   used_blocks = this->topological_sort(used_blocks);
   //this->blocks_list = gr_flat_flowgraph::make_block_vector(used_blocks);
   this->blocks_top = gr_flat_flowgraph::make_block_vector(used_blocks);
-
-  std::cout << "Before filling boost vector" << std::endl;
+  
+  if (GR_FLAT_FLOWGRAPH_DEBUG)
+    std::cout << "Before filling boost vector" << std::endl;
   // set vector size to the number of blocks
   this->blocks_list.resize(this->blocks_top.size());
   this->blocks_firing.resize(this->blocks_top.size());
@@ -164,7 +168,8 @@ gr_flat_flowgraph::set_blocks_list() {
   //std::cout << this->top_matrix << std::endl;
   it1=0;
   for (size_t i = 0; i < this->blocks_top.size(); i++){
-    std::cout << "HEY BLOCK= " << this->blocks_top[i]->name() << " Rel Rate= " << this->blocks_top[i]->relative_rate() << std::endl;    
+    if (GR_FLAT_FLOWGRAPH_DEBUG)
+      std::cout << "HEY BLOCK= " << this->blocks_top[i]->name() << " Rel Rate= " << this->blocks_top[i]->relative_rate() << std::endl;    
     in_edges = calc_upstream_edges(this->blocks_top[i]);
     for (gr_edge_viter_t e = in_edges.begin(); e != in_edges.end(); e++) {
       // Set the buffer reader on the destination port to the output
@@ -177,7 +182,8 @@ gr_flat_flowgraph::set_blocks_list() {
       dst_grblock = cast_to_block_sptr(dst_block);
       src_id = this->return_block_id(src_block->symbol_name());
       dst_id = this->return_block_id(dst_block->symbol_name());
-      std::cout << "number of edges= " << this->number_of_edges << " number of blocks= " << this->number_of_blocks << std::endl;
+      if (GR_FLAT_FLOWGRAPH_DEBUG)
+	std::cout << "number of edges= " << this->number_of_edges << " number of blocks= " << this->number_of_blocks << std::endl;
 
 
       block_rate_src = src_grblock->relative_rate();
@@ -207,8 +213,10 @@ gr_flat_flowgraph::set_blocks_list() {
 
       //this->top_matrix(this->number_of_edges,src_id) = i;
       //this->top_matrix(this->number_of_edges,dst_id) = i+1;
-      std::cout << "M[" << it1 << "," << src_id << "]= " << this->top_matrix(it1,src_id) << " " << src_grblock->name() << std::endl;
-      std::cout << "M[" << it1 << "," << dst_id << "]= " << this->top_matrix(it1,dst_id) << " " << dst_grblock->name() << std::endl;
+      if (GR_FLAT_FLOWGRAPH_DEBUG) {
+	std::cout << "M[" << it1 << "," << src_id << "]= " << this->top_matrix(it1,src_id) << " " << src_grblock->name() << std::endl;
+	std::cout << "M[" << it1 << "," << dst_id << "]= " << this->top_matrix(it1,dst_id) << " " << dst_grblock->name() << std::endl;
+      }
       //std::cout << "Matrix dimension= " << this->top_matrix.size1() << "x" << this->top_matrix.size2() << std::endl;
       //std::cout << "Matrix= " << std::endl << this->top_matrix << std::endl;
       it1++;
@@ -312,9 +320,11 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
   if (!grblock)
     throw std::runtime_error("allocate_buffer found non-gr_block");
   int item_size = block->output_signature()->sizeof_stream_item(port);
-  std::cout << "BLOCK= " << grblock << std::endl;
-  std::cout << "item_size= " << item_size << std::endl;
-  std::cout << "unique_id = " << grblock->unique_id() << " symbolic_id=  " << grblock->symbolic_id() << " name= " << grblock->name() << " symbol_name= " << grblock->symbol_name() << " alias= " <<  grblock->alias() << std::endl;
+  if (GR_FLAT_FLOWGRAPH_DEBUG) {
+    std::cout << "BLOCK= " << grblock << std::endl;
+    std::cout << "item_size= " << item_size << std::endl;
+    std::cout << "unique_id = " << grblock->unique_id() << " symbolic_id=  " << grblock->symbolic_id() << " name= " << grblock->name() << " symbol_name= " << grblock->symbol_name() << " alias= " <<  grblock->alias() << std::endl;
+  }
   // *2 because we're now only filling them 1/2 way in order to
   // increase the available parallelism when using the TPB scheduler.
   // (We're double buffering, where we used to single buffer)
@@ -323,20 +333,24 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
   int nitems = 0;
 
   if (this->alloc_policy == ALLOC_DEF) {
-    std::cout << "ALLOC_DEF Policy" << std::endl;
+    if (GR_FLAT_FLOWGRAPH_DEBUG)
+      std::cout << "ALLOC_DEF Policy" << std::endl;
     nitems = s_fixed_buffer_size * 2 / item_size;
     // Make sure there are at least twice the output_multiple no. of items
     if (nitems < 2*grblock->output_multiple())	// Note: this means output_multiple()
       nitems = 2*grblock->output_multiple();	// can't be changed by block dynamically
-    std::cout << "nitem2= " << nitems << " output_relrate= " << grblock->relative_rate() << " max_noutput= " << grblock->max_noutput_items() << std::endl;
+    if (GR_FLAT_FLOWGRAPH_DEBUG)
+      std::cout << "nitem2= " << nitems << " output_relrate= " << grblock->relative_rate() << " max_noutput= " << grblock->max_noutput_items() << std::endl;
   }
   else {
-    std::cout << "ALLOC_TOP Policy" << std::endl;
+    if (GR_FLAT_FLOWGRAPH_DEBUG)
+      std::cout << "ALLOC_TOP Policy" << std::endl;
     nitems = s_fixed_buffer_size * 2 / item_size;
   }
-  std::cout << "s_fixed_buffer_size= " << s_fixed_buffer_size << std::endl;
-  std::cout << "nitem1= " << nitems << " item_size= " << item_size << std::endl;
-
+  if (GR_FLAT_FLOWGRAPH_DEBUG) {
+    std::cout << "s_fixed_buffer_size= " << s_fixed_buffer_size << std::endl;
+    std::cout << "nitem1= " << nitems << " item_size= " << item_size << std::endl;
+  }
   // If any downstream blocks are decimators and/or have a large output_multiple,
   // ensure we have a buffer at least twice their decimation factor*output_multiple
   gr_basic_block_vector_t blocks = calc_downstream_blocks(block, port);
@@ -346,17 +360,21 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
   if(grblock->max_output_buffer(port) > 0) {
     //    std::cout << "constraining output items to " << block->max_output_buffer(port) << "\n";
     nitems = std::min((long)nitems, (long)grblock->max_output_buffer(port));
-    std::cout << "restric max nitem1= " << nitems << std::endl;
+    if (GR_FLAT_FLOWGRAPH_DEBUG)
+      std::cout << "restric max nitem1= " << nitems << std::endl;
     nitems -= nitems%grblock->output_multiple();
-    std::cout << "restric max nitem2= " << nitems << std::endl;
+    if (GR_FLAT_FLOWGRAPH_DEBUG)
+      std::cout << "restric max nitem2= " << nitems << std::endl;
     if( nitems < 1 )
       throw std::runtime_error("problems allocating a buffer with the given max output buffer constraint!");
   }
   else if(grblock->min_output_buffer(port) > 0) {
     nitems = std::max((long)nitems, (long)grblock->min_output_buffer(port));
-    std::cout << "restrict min nitem1= " << nitems << std::endl;
+    if (GR_FLAT_FLOWGRAPH_DEBUG)
+      std::cout << "restrict min nitem1= " << nitems << std::endl;
     nitems -= nitems%grblock->output_multiple();
-    std::cout << "restric nitem2= " << nitems << std::endl;
+    if (GR_FLAT_FLOWGRAPH_DEBUG)
+      std::cout << "restric nitem2= " << nitems << std::endl;
     if( nitems < 1 )
       throw std::runtime_error("problems allocating a buffer with the given min output buffer constraint!");
   }
@@ -380,7 +398,8 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
       //std::cout << "dgrblock= " << dgrblock << " decimation " <<
       //decimation << " multiple=" << multiple << " history= " << history << " max_noutput= " << dgrblock->detail()->output(0)->d_bufsize << std::endl;
       nitems = std::max(nitems, static_cast<int>(2*(decimation*multiple+history)));
-      std::cout << "final nitem= " << nitems << std::endl;
+      if (GR_FLAT_FLOWGRAPH_DEBUG)      
+	std::cout << "final nitem= " << nitems << std::endl;
     }
   }
   //////////////////////////////////////////////////////////////////////////////////////////

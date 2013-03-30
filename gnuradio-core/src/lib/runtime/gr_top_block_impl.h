@@ -83,6 +83,7 @@ public:
   void print_blocks_firing();
   double get_pc_performance_metric(int metric, int index);
   void set_pc_performance_metric();
+  void reset_pc_performance_metric();
 protected:
 
   enum tb_state { IDLE, RUNNING };

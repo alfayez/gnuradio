@@ -66,6 +66,7 @@ public:
   void go();
   double get_pc_performance_metric(int metric, int index);
   void set_pc_performance_metric();
+  void reset_pc_performance_metric();
 };
 
 #ifdef SWIGPYTHON

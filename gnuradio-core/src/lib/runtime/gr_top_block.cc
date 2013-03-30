@@ -132,6 +132,10 @@ void
 gr_top_block::set_pc_performance_metric() {
   d_impl->set_pc_performance_metric();
 }
+void
+gr_top_block::reset_pc_performance_metric() {
+  d_impl->reset_pc_performance_metric();
+}
 double 
 gr_top_block::get_pc_performance_metric(int metric, int index) {
   return d_impl->get_pc_performance_metric(metric, index);
