@@ -81,6 +81,8 @@ public:
   int get_number_of_edges();
   void print_top_matrix();
   void print_blocks_firing();
+  double get_pc_performance_metric(int metric, int index);
+  void set_pc_performance_metric();
 protected:
 
   enum tb_state { IDLE, RUNNING };

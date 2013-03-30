@@ -123,24 +123,33 @@ gr_flat_flowgraph::set_blocks_list() {
   int it1=0;
   int it2=0;
 
-  gr_block_vector_t blocks_temp;
   //////////////////////////////////////////////////////
   /// GET LIST OF BLOCKS USED IN TOPOLOGICAL ORDER  ////
   //////////////////////////////////////////////////////
   gr_basic_block_vector_t used_blocks = this->calc_used_blocks();
   used_blocks = this->topological_sort(used_blocks);
   //this->blocks_list = gr_flat_flowgraph::make_block_vector(used_blocks);
-  blocks_temp = gr_flat_flowgraph::make_block_vector(used_blocks);
+  this->blocks_top = gr_flat_flowgraph::make_block_vector(used_blocks);
 
   std::cout << "Before filling boost vector" << std::endl;
   // set vector size to the number of blocks
-  this->blocks_list.resize(blocks_temp.size());
-  this->blocks_firing.resize(blocks_temp.size());
-  for (size_t i = 0; i < blocks_temp.size(); i++){
+  this->blocks_list.resize(this->blocks_top.size());
+  this->blocks_firing.resize(this->blocks_top.size());
+  this->blocks_noutput.resize(this->blocks_top.size());
+  this->blocks_noutput_var.resize(this->blocks_top.size());
+  this->blocks_nproduced.resize(this->blocks_top.size());
+  this->blocks_nproduced_var.resize(this->blocks_top.size());
+  this->blocks_output_buff.resize(this->blocks_top.size());
+  this->blocks_output_buff_var.resize(this->blocks_top.size());
+  this->blocks_work_time.resize(this->blocks_top.size());
+  this->blocks_work_time_var.resize(this->blocks_top.size());
+
+
+  for (size_t i = 0; i < this->blocks_top.size(); i++){
     //this->blocks_list[i] = blocks_temp[i]->symbol_name();
     //this->blocks_list.resize(i);
-    this->blocks_list[i] = blocks_temp[i]->symbol_name();
-    in_edges = calc_upstream_edges(blocks_temp[i]);
+    this->blocks_list[i] = this->blocks_top[i]->symbol_name();
+    in_edges = calc_upstream_edges(this->blocks_top[i]);
     for (gr_edge_viter_t e = in_edges.begin(); e != in_edges.end(); e++) {
       this->number_of_edges = this->number_of_edges + 1;
     }
@@ -154,9 +163,9 @@ gr_flat_flowgraph::set_blocks_list() {
   //std::cout << "Empty Matrix= ";
   //std::cout << this->top_matrix << std::endl;
   it1=0;
-  for (size_t i = 0; i < blocks_temp.size(); i++){
-    std::cout << "HEY BLOCK= " << blocks_temp[i]->name() << " Rel Rate= " << blocks_temp[i]->relative_rate() << std::endl;    
-    in_edges = calc_upstream_edges(blocks_temp[i]);
+  for (size_t i = 0; i < this->blocks_top.size(); i++){
+    std::cout << "HEY BLOCK= " << this->blocks_top[i]->name() << " Rel Rate= " << this->blocks_top[i]->relative_rate() << std::endl;    
+    in_edges = calc_upstream_edges(this->blocks_top[i]);
     for (gr_edge_viter_t e = in_edges.begin(); e != in_edges.end(); e++) {
       // Set the buffer reader on the destination port to the output
       // buffer on the source port

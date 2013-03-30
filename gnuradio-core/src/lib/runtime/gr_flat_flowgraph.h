@@ -81,6 +81,21 @@ public:
   void print_top_matrix();
   void print_blocks_firing();
   int alloc_policy;
+
+  // Fayez
+  //std::vector<std::string> blocks_list;
+  std::vector<std::string> blocks_list;
+  std::vector<double> blocks_noutput;
+  std::vector<double> blocks_noutput_var;
+  std::vector<double> blocks_nproduced;
+  std::vector<double> blocks_nproduced_var;
+  //std::vector<double> blocks_input_buff;
+  //std::vector<double> blocks_input_buff_var;
+  std::vector<double> blocks_output_buff;
+  std::vector<double> blocks_output_buff_var;
+  std::vector<double> blocks_work_time;
+  std::vector<double> blocks_work_time_var;
+  gr_block_vector_t blocks_top;
 private:
   gr_flat_flowgraph();
 
@@ -97,14 +112,12 @@ private:
    */
   void setup_buffer_alignment(gr_block_sptr block);
 
-  // Fayez
-  //std::vector<std::string> blocks_list;
-  std::vector<std::string> blocks_list;
   std::vector<int> blocks_firing;
   int number_of_blocks;
   int number_of_edges;
   int d_token_size;
   boost::numeric::ublas::matrix<double> top_matrix;
+  // List of blocks in topological order
 };
 
 #endif /* INCLUDED_GR_FLAT_FLOWGRAPH_H */

@@ -38,6 +38,14 @@
 
 #define GR_TOP_BLOCK_IMPL_DEBUG 0
 
+enum { NOUTPUT,
+      NOUTPUT_VAR,
+      NPRODUCED,
+      NPRODUCED_VAR,
+      OUTPUT_BUFF,
+      OUTPUT_BUFF_VAR,
+      WORK_TIME,
+      WORK_TIME_VAR};
 
 typedef gr_scheduler_sptr (*scheduler_maker)(gr_flat_flowgraph_sptr ffg,
 					     int max_noutput_items);
@@ -188,7 +196,46 @@ void
 gr_top_block_impl::print_blocks_firing() {
   d_ffg->print_blocks_firing();
 }
-
+double 
+gr_top_block_impl::get_pc_performance_metric(int metric, int index) {
+  double value = 0.0;
+       
+  if (NOUTPUT) 
+    value = d_ffg->blocks_noutput[index];
+  else if (NOUTPUT_VAR)
+    value = d_ffg->blocks_noutput_var[index];
+  else if (NPRODUCED)
+    value = d_ffg->blocks_nproduced[index];
+  else if (NPRODUCED_VAR)
+    value = d_ffg->blocks_nproduced_var[index];
+  else if (OUTPUT_BUFF)
+    value = d_ffg->blocks_output_buff[index];
+  else if (OUTPUT_BUFF_VAR)
+    value = d_ffg->blocks_output_buff_var[index];
+  else if (WORK_TIME)
+    value = d_ffg->blocks_work_time[index];
+  else if (WORK_TIME_VAR)
+    value = d_ffg->blocks_work_time_var[index];
+  else
+    value = -1.0;
+  
+  return value;
+}
+void
+gr_top_block_impl::set_pc_performance_metric() {
+ 
+  for (int i=0; i<d_ffg->blocks_list.size(); i++) {
+    d_ffg->blocks_noutput[i]         = d_ffg->blocks_top[i]->pc_noutput_items();
+    d_ffg->blocks_noutput_var[i]     = d_ffg->blocks_top[i]->pc_noutput_items_var();
+    d_ffg->blocks_nproduced[i]       = d_ffg->blocks_top[i]->pc_nproduced();
+    d_ffg->blocks_nproduced_var[i]   = d_ffg->blocks_top[i]->pc_nproduced_var();
+    d_ffg->blocks_output_buff[i]     = d_ffg->blocks_top[i]->pc_output_buffers_full(0);
+    d_ffg->blocks_output_buff_var[i] = d_ffg->blocks_top[i]->pc_output_buffers_full_var(0);
+    d_ffg->blocks_work_time[i]       = d_ffg->blocks_top[i]->pc_work_time();
+    d_ffg->blocks_work_time_var[i]   = d_ffg->blocks_top[i]->pc_work_time_var();
+  }
+  
+}
 void
 gr_top_block_impl::stop()
 {
