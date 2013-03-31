@@ -84,6 +84,7 @@ public:
   double get_pc_performance_metric(int metric, int index);
   void set_pc_performance_metric();
   void reset_pc_performance_metric();
+  int get_block_io(int index);
 protected:
 
   enum tb_state { IDLE, RUNNING };

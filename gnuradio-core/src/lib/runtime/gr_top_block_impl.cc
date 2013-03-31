@@ -30,6 +30,8 @@
 #include <gr_scheduler_sts.h>
 #include <gr_scheduler_tpb.h>
 
+#include <gruel/high_res_timer.h>
+
 #include <stdexcept>
 #include <iostream>
 #include <string.h>
@@ -157,6 +159,11 @@ gr_top_block_impl::alloc(int token_size, int alloc_policy, int max_noutput_items
   if (GR_TOP_BLOCK_IMPL_DEBUG)
     std::cout << "TOKEN SIZE= " << token_size << " Allocation policy= " << d_ffg->alloc_policy << std::endl;
   d_ffg->setup_connections();
+  d_ffg->set_blocks_io();
+}
+int 
+gr_top_block_impl::get_block_io(int index) {
+  return d_ffg->get_block_io(index);
 }
 void
 gr_top_block_impl::go()
@@ -236,7 +243,7 @@ gr_top_block_impl::set_pc_performance_metric() {
     d_ffg->blocks_nproduced_var[i]   = d_ffg->blocks_top[i]->pc_nproduced_var();
     d_ffg->blocks_output_buff[i]     = d_ffg->blocks_top[i]->pc_output_buffers_full(0);
     d_ffg->blocks_output_buff_var[i] = d_ffg->blocks_top[i]->pc_output_buffers_full_var(0);
-    d_ffg->blocks_work_time[i]       = d_ffg->blocks_top[i]->pc_work_time();
+    d_ffg->blocks_work_time[i]       = d_ffg->blocks_top[i]->pc_work_time()/(gruel::high_res_timer_tps());
     d_ffg->blocks_work_time_var[i]   = d_ffg->blocks_top[i]->pc_work_time_var();
     if (GR_TOP_BLOCK_IMPL_DEBUG)    
       std::cout << "SET block= " << d_ffg->blocks_list[i] << " time= " << d_ffg->blocks_work_time[i] << std::endl;

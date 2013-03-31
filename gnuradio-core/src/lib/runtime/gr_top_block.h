@@ -151,6 +151,7 @@ public:
   double get_pc_performance_metric(int metric, int index);
   void set_pc_performance_metric();
   void reset_pc_performance_metric();
+  int get_block_io(int index);
 };
 
 inline gr_top_block_sptr cast_to_top_block_sptr(gr_basic_block_sptr block) {

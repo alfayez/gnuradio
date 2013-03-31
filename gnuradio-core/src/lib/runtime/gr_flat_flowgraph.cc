@@ -58,7 +58,20 @@ gr_flat_flowgraph::gr_flat_flowgraph()
 gr_flat_flowgraph::~gr_flat_flowgraph()
 {
 }
-
+void
+gr_flat_flowgraph::set_blocks_io() {
+  this->blocks_io.resize(this->blocks_top.size());
+  for (int i=0; i < this->blocks_top.size(); i++) {
+    // TODO: This assumes a single output port ... need to generalize
+    // to multiple output ports
+    this->blocks_io[i] = blocks_top[i]->output_signature()->sizeof_stream_item(0);
+    //std::cout << this->blocks_top[i]->symbol_name() << " item_size= " << this->blocks_io[i] << std::endl;
+  }
+}
+int
+gr_flat_flowgraph::get_block_io(int index) {
+  return this->blocks_io[index];
+}
 void
 gr_flat_flowgraph::setup_connections()
 {
@@ -80,7 +93,6 @@ gr_flat_flowgraph::setup_connections()
     block->set_unaligned(0);
     block->set_is_unaligned(false);
   }
-
   // Connect message ports connetions
     if (GR_FLAT_FLOWGRAPH_DEBUG)
       std::cout << "Start Message Ports" << std::endl;

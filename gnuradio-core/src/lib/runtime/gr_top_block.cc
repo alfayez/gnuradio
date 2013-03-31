@@ -87,6 +87,10 @@ gr_top_block::top_matrix_top(int index1, int index2) {
   //std::cout << "TOP_matrix= " << std::endl << d_impl->top_matrix_top() << std::endl;
   return d_impl->top_matrix_top(index1, index2);
 }
+int 
+gr_top_block::get_block_io(int index) {
+  return d_impl->get_block_io(index);
+}
 void
 gr_top_block::print_top_matrix() {
   d_impl->print_top_matrix();

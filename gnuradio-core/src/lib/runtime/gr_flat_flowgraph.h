@@ -81,7 +81,8 @@ public:
   void print_top_matrix();
   void print_blocks_firing();
   int alloc_policy;
-
+  void set_blocks_io();
+  int get_block_io(int index);
   // Fayez
   //std::vector<std::string> blocks_list;
   std::vector<std::string> blocks_list;
@@ -95,6 +96,7 @@ public:
   std::vector<double> blocks_output_buff_var;
   std::vector<double> blocks_work_time;
   std::vector<double> blocks_work_time_var;
+  std::vector<int> blocks_io;
   gr_block_vector_t blocks_top;
 private:
   gr_flat_flowgraph();
