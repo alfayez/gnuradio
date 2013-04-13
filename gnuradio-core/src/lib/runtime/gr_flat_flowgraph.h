@@ -72,6 +72,10 @@ public:
   void set_blocks_firing(int index, int value);
   //void set_blocks_firing();
   int return_block_id(std::string block_find);
+
+  int return_chan_id(std::string, std::string);
+  void print_chan_list();
+
   std::string return_blocks_list(int index);
   double return_top_matrix(int index1, int index2);
   int return_number_of_blocks();
@@ -119,6 +123,7 @@ private:
   int number_of_edges;
   int d_token_size;
   boost::numeric::ublas::matrix<double> top_matrix;
+  boost::numeric::ublas::matrix<std::string> chan_list;
   // List of blocks in topological order
 };
 

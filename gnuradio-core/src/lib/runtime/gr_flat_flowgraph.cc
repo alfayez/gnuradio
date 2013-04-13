@@ -172,10 +172,14 @@ gr_flat_flowgraph::set_blocks_list() {
   }
   this->number_of_blocks = this->blocks_list.size();
   this->top_matrix.resize(this->number_of_edges, this->number_of_blocks);
+  this->chan_list.resize(this->number_of_edges, 2);
   // Initiailize the newly created Matrix row to 0's
   for (int j=0; j < this->number_of_edges; j++)
-    for (int k=0; k < this->number_of_blocks; k++)
+    for (int k=0; k < this->number_of_blocks; k++) {
       this->top_matrix(j,k) = 0;
+      this->chan_list(j,0)  = "None";
+      this->chan_list(j,1)  = "None";
+    }
   //std::cout << "Empty Matrix= ";
   //std::cout << this->top_matrix << std::endl;
   it1=0;
@@ -222,7 +226,8 @@ gr_flat_flowgraph::set_blocks_list() {
 
       this->top_matrix(it1,src_id) = block_rate_src;
       this->top_matrix(it1,dst_id) = -block_rate_dst;
-
+      this->chan_list(it1,0) = src_block->symbol_name();
+      this->chan_list(it1,1) = dst_block->symbol_name();
       //this->top_matrix(this->number_of_edges,src_id) = i;
       //this->top_matrix(this->number_of_edges,dst_id) = i+1;
       if (GR_FLAT_FLOWGRAPH_DEBUG) {
@@ -234,8 +239,15 @@ gr_flat_flowgraph::set_blocks_list() {
       it1++;
     }
   }
-
+  //this->print_chan_list();
 }
+void
+gr_flat_flowgraph::print_chan_list() {
+  for (int i=0; i < this->number_of_edges; i++) {
+    std::cout << "Src= " << this->chan_list(i,0) << " Dst= " << this->chan_list(i,1) << std::endl;
+  }
+}
+
 void
 gr_flat_flowgraph::print_top_matrix() {
   //std::cout << "Gnuradio Topology Matrix= " << std::endl << top_matrix << std::endl;
@@ -263,6 +275,13 @@ int gr_flat_flowgraph::return_number_of_edges() {
 int gr_flat_flowgraph::return_block_id(std::string block_find) {
   for (size_t i = 0; i < this->blocks_list.size(); i++){
     if (block_find == this->blocks_list[i])
+      return i;
+  }
+  return -1;
+}
+int gr_flat_flowgraph::return_chan_id(std::string block_out, std::string block_in) {
+  for (size_t i = 0; i < this->number_of_edges; i++){
+    if (block_out == this->chan_list(i,0))
       return i;
   }
   return -1;
@@ -343,7 +362,10 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
   /////////////////////////////////////////////////////
   // FAYEZ - New buffer allocation policy
   int nitems = 0;
-
+  int nitems_temp=0;
+  int block_id = -1;
+  int chan_id  = -1;
+  std::string temp_str="None";
   if (this->alloc_policy == ALLOC_DEF) {
     if (GR_FLAT_FLOWGRAPH_DEBUG)
       std::cout << "ALLOC_DEF Policy" << std::endl;
@@ -354,10 +376,27 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
     if (GR_FLAT_FLOWGRAPH_DEBUG)
       std::cout << "nitem2= " << nitems << " output_relrate= " << grblock->relative_rate() << " max_noutput= " << grblock->max_noutput_items() << std::endl;
   }
-  else {
+  else if (this->alloc_policy == ALLOC_TOP){
     if (GR_FLAT_FLOWGRAPH_DEBUG)
       std::cout << "ALLOC_TOP Policy" << std::endl;
-    nitems = s_fixed_buffer_size * 2 / item_size;
+
+    block_id = this->return_block_id(grblock->symbol_name());
+    chan_id  = this->return_chan_id(grblock->symbol_name(), temp_str);
+    if (0) {
+      std::cout << "Block name = " << grblock->symbol_name();
+      std::cout << " id= "         << block_id;
+      std::cout << " chan_id= "    << chan_id;
+      std::cout << " top_entry= " << this->top_matrix(chan_id, block_id);
+      std::cout << " firing entry= " << this->blocks_firing[block_id];
+      std::cout << " token_size= " << this->d_token_size;
+      std::cout << std::endl;
+    }
+    //nitems = s_fixed_buffer_size / item_size;
+    nitems = this->top_matrix(chan_id, block_id)*this->blocks_firing[block_id]*this->d_token_size;
+    nitems_temp = grblock->output_multiple();	// can't be changed by block dynamically
+    if (0) {
+    std::cout << "nitems= " << nitems << " nitems_temp= " << nitems_temp << std::endl;
+    }
   }
   if (GR_FLAT_FLOWGRAPH_DEBUG) {
     std::cout << "s_fixed_buffer_size= " << s_fixed_buffer_size << std::endl;
@@ -562,6 +601,7 @@ void
 gr_flat_flowgraph::setup_buffer_alignment(gr_block_sptr block)
 {
   const int alignment = volk_get_alignment();
+  std::cout << "in buffer alignment" << std::endl;
   for(int i = 0; i < block->detail()->ninputs(); i++) {
     void *r = (void*)block->detail()->input(i)->read_pointer();
     unsigned long int ri = (unsigned long int)r % alignment;
