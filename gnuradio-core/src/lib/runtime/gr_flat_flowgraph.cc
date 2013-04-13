@@ -379,7 +379,7 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
       std::cout << "nitem2= " << nitems << " output_relrate= " << grblock->relative_rate() << " max_noutput= " << grblock->max_noutput_items() << std::endl;
   }
   else if (this->alloc_policy == ALLOC_TOP){
-    //if (GR_FLAT_FLOWGRAPH_DEBUG)
+    if (GR_FLAT_FLOWGRAPH_DEBUG)
       std::cout << "ALLOC_TOP Policy" << std::endl;
 
     block_id = this->return_block_id(grblock->symbol_name());
