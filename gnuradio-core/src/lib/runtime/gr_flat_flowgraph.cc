@@ -40,7 +40,7 @@ using namespace boost::assign;
 // 32Kbyte buffer size between blocks
 #define GR_FIXED_BUFFER_SIZE (32*(1L<<10))
 
-static unsigned int s_fixed_buffer_size = GR_FIXED_BUFFER_SIZE;
+static const unsigned int s_fixed_buffer_size = GR_FIXED_BUFFER_SIZE;
 
 gr_flat_flowgraph_sptr
 gr_make_flat_flowgraph()
@@ -52,6 +52,7 @@ gr_flat_flowgraph::gr_flat_flowgraph()
 {
   number_of_blocks = 0;
   number_of_edges  = 0;
+  this->alloc_policy = ALLOC_DEF;
   d_token_size     = GR_FIXED_BUFFER_SIZE;
 }
 
@@ -366,8 +367,9 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
   int block_id = -1;
   int chan_id  = -1;
   std::string temp_str="None";
+  
   if (this->alloc_policy == ALLOC_DEF) {
-    if (GR_FLAT_FLOWGRAPH_DEBUG)
+    //if (GR_FLAT_FLOWGRAPH_DEBUG)
       std::cout << "ALLOC_DEF Policy" << std::endl;
     nitems = s_fixed_buffer_size * 2 / item_size;
     // Make sure there are at least twice the output_multiple no. of items
@@ -377,7 +379,7 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
       std::cout << "nitem2= " << nitems << " output_relrate= " << grblock->relative_rate() << " max_noutput= " << grblock->max_noutput_items() << std::endl;
   }
   else if (this->alloc_policy == ALLOC_TOP){
-    if (GR_FLAT_FLOWGRAPH_DEBUG)
+    //if (GR_FLAT_FLOWGRAPH_DEBUG)
       std::cout << "ALLOC_TOP Policy" << std::endl;
 
     block_id = this->return_block_id(grblock->symbol_name());
@@ -398,6 +400,8 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
     std::cout << "nitems= " << nitems << " nitems_temp= " << nitems_temp << std::endl;
     }
   }
+  else
+    std::cout << "UNKNOWN_ALLOC= " << this->alloc_policy << std::endl;
   if (GR_FLAT_FLOWGRAPH_DEBUG) {
     std::cout << "s_fixed_buffer_size= " << s_fixed_buffer_size << std::endl;
     std::cout << "nitem1= " << nitems << " item_size= " << item_size << std::endl;
