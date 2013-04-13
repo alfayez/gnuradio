@@ -369,7 +369,7 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
   std::string temp_str="None";
   
   if (this->alloc_policy == ALLOC_DEF) {
-    //if (GR_FLAT_FLOWGRAPH_DEBUG)
+    if (GR_FLAT_FLOWGRAPH_DEBUG)
       std::cout << "ALLOC_DEF Policy" << std::endl;
     nitems = s_fixed_buffer_size * 2 / item_size;
     // Make sure there are at least twice the output_multiple no. of items
