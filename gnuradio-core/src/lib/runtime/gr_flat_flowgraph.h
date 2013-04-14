@@ -119,6 +119,7 @@ private:
   void setup_buffer_alignment(gr_block_sptr block);
 
   std::vector<int> blocks_firing;
+  bool is_uhd_channel(std::string);
   int number_of_blocks;
   int number_of_edges;
   int d_token_size;

@@ -366,6 +366,8 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
   int nitems_temp=0;
   int block_id = -1;
   int chan_id  = -1;
+  int buff_size = 0;
+  std::string block_name_temp="None";
   std::string temp_str="None";
   
   if (this->alloc_policy == ALLOC_DEF) {
@@ -393,9 +395,17 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
       std::cout << " token_size= " << this->d_token_size;
       std::cout << std::endl;
     }
-    //nitems = s_fixed_buffer_size / item_size;
-    nitems = this->top_matrix(chan_id, block_id)*this->blocks_firing[block_id]*this->d_token_size;
-    nitems_temp = grblock->output_multiple();	// can't be changed by block dynamically
+    // if we're allocating a uhd buffer allocate the full 32KB to avoid libusb error
+    buff_size = this->top_matrix(chan_id, block_id)*this->blocks_firing[block_id]*this->d_token_size;
+    block_name_temp = grblock->symbol_name();
+    if(!this->is_uhd_channel(block_name_temp))
+    	nitems = buff_size;
+    else {
+	nitems_temp = ceil(log(buff_size)/log(2));
+    	//nitems = s_fixed_buffer_size*2/item_size;
+        nitems = pow(2,nitems_temp)/item_size;
+	std::cout << "UHD BUFFER TEMP=" << nitems_temp << " NAME= " << block_name_temp << " SIZE= " << nitems << std::endl;
+	}
     if (0) {
     std::cout << "nitems= " << nitems << " nitems_temp= " << nitems_temp << std::endl;
     }
@@ -460,6 +470,19 @@ gr_flat_flowgraph::allocate_buffer(gr_basic_block_sptr block, int port)
   //////////////////////////////////////////////////////////////////////////////////////////
 //  std::cout << "gr_make_buffer(" << nitems << ", " << item_size << ", " << grblock << "\n";
   return gr_make_buffer(nitems, item_size, grblock);
+}
+bool
+gr_flat_flowgraph::is_uhd_channel(std::string block_name) {
+    int chan_id=-1;
+    std::string temp_str = "None";
+    if(block_name.find("uhd") != std::string::npos)
+    	return 1;
+    else {
+	chan_id = this->return_chan_id(block_name, temp_str);
+	if (this->chan_list(chan_id, 1).find("uhd") != std::string::npos)
+		return 1;
+    }
+    return 0;
 }
 
 void
